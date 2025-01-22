@@ -6,7 +6,7 @@ public class Product {
     private String category;
     private String description;
 
-    // Constructor with renamed parameters
+   
     public Product(long productId, String productName, double productPrice, int productStock, String productCategory, String productDescription) {
         this.productId = productId;
         this.name = productName;
@@ -16,7 +16,7 @@ public class Product {
         this.description = productDescription;
     }
 
-    // Getters and Setters with updated parameter names
+    
     public long getProductId() {
         return productId;
     }

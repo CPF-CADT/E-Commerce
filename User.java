@@ -6,7 +6,6 @@ public class User {
     private String address;
     private String phoneNumber;
 
-    // Constructor with renamed parameters
     public User(long userId, String userName, String userEmail, String userPassword, String userAddress, String userPhoneNumber) {
         this.userId = userId;
         this.name = userName;
@@ -16,7 +15,7 @@ public class User {
         this.phoneNumber = userPhoneNumber;
     }
 
-    // Getters and Setters with updated parameter names
+   
     public long getUserId() {
         return userId;
     }
