@@ -6,17 +6,17 @@ public class User {
     private String address;
     private String phoneNumber;
 
-
-    public User(long userId, String name, String email, String password, String address, String phoneNumber) {
+    // Constructor with renamed parameters
+    public User(long userId, String userName, String userEmail, String userPassword, String userAddress, String userPhoneNumber) {
         this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
+        this.name = userName;
+        this.email = userEmail;
+        this.password = userPassword;
+        this.address = userAddress;
+        this.phoneNumber = userPhoneNumber;
     }
 
- 
+    // Getters and Setters with updated parameter names
     public long getUserId() {
         return userId;
     }
@@ -29,39 +29,39 @@ public class User {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String userName) {
+        this.name = userName;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmail(String userEmail) {
+        this.email = userEmail;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String userPassword) {
+        this.password = userPassword;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddress(String userAddress) {
+        this.address = userAddress;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhoneNumber(String userPhoneNumber) {
+        this.phoneNumber = userPhoneNumber;
     }
 }
