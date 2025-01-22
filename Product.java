@@ -6,17 +6,17 @@ public class Product {
     private String category;
     private String description;
 
-    // Constructor
-    public Product(long productId, String name, double price, int stock, String category, String description) {
+   
+    public Product(long productId, String productName, double productPrice, int productStock, String productCategory, String productDescription) {
         this.productId = productId;
-        this.name = name;
-        this.price = price;
-        this.stock = stock;
-        this.category = category;
-        this.description = description;
+        this.name = productName;
+        this.price = productPrice;
+        this.stock = productStock;
+        this.category = productCategory;
+        this.description = productDescription;
     }
 
-    // Getters and Setters
+    
     public long getProductId() {
         return productId;
     }
@@ -29,39 +29,39 @@ public class Product {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String productName) {
+        this.name = productName;
     }
 
     public double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setPrice(double productPrice) {
+        this.price = productPrice;
     }
 
     public int getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
+    public void setStock(int productStock) {
+        this.stock = productStock;
     }
 
     public String getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategory(String productCategory) {
+        this.category = productCategory;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription(String productDescription) {
+        this.description = productDescription;
     }
 }
