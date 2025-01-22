@@ -6,7 +6,7 @@ public class Product {
     private String category;
     private String description;
 
-    // Constructor
+   
     public Product(long productId, String name, double price, int stock, String category, String description) {
         this.productId = productId;
         this.name = name;
@@ -16,7 +16,6 @@ public class Product {
         this.description = description;
     }
 
-    // Getters and Setters
     public long getProductId() {
         return productId;
     }

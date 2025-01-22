@@ -6,7 +6,7 @@ public class User {
     private String address;
     private String phoneNumber;
 
-    // Constructor
+
     public User(long userId, String name, String email, String password, String address, String phoneNumber) {
         this.userId = userId;
         this.name = name;
@@ -16,7 +16,7 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    // Getters and Setters
+ 
     public long getUserId() {
         return userId;
     }
