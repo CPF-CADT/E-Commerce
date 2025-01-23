@@ -1,5 +1,5 @@
 public class Product {
-    private long productId;
+    private int productId;
     private String name;
     private double price;
     private int stock;
@@ -7,7 +7,7 @@ public class Product {
     private String description;
 
    
-    public Product(long productId, String productName, double productPrice, int productStock, String productCategory, String productDescription) {
+    public Product(int productId, String productName, double productPrice, int productStock, String productCategory, String productDescription) {
         this.productId = productId;
         this.name = productName;
         this.price = productPrice;
@@ -17,11 +17,11 @@ public class Product {
     }
 
     
-    public long getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(long productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 

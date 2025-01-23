@@ -1,12 +1,12 @@
 public class User {
-    private long userId;
+    private int userId;
     private String name;
     private String email;
     private String password;
     private String address;
     private String phoneNumber;
 
-    public User(long userId, String userName, String userEmail, String userPassword, String userAddress, String userPhoneNumber) {
+    public User(int userId, String userName, String userEmail, String userPassword, String userAddress, String userPhoneNumber) {
         this.userId = userId;
         this.name = userName;
         this.email = userEmail;
@@ -16,11 +16,11 @@ public class User {
     }
 
    
-    public long getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
