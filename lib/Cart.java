@@ -3,13 +3,13 @@ import java.util.List;
 import java.util.Map;
 
 public class Cart {
-  private long cartId;
-  private long userId;
-  private List<Long> products; // List of productID in the cart
-  private Map<Long, Integer> quantities;
+  private int cartId;
+  private int userId;
+  private List<Integer> products; // List of productID in the cart
+  private Map<Integer, Integer> quantities;
   private double totalPrice;
 
-  Cart(long cartId, long userId, List<Long> products, Map<Long, Integer> quantities) {
+  Cart(int cartId, int userId, List<Integer> products, Map<Integer, Integer> quantities) {
     this.cartId = cartId;
     this.userId = userId;
     this.products = products;
@@ -21,19 +21,19 @@ public class Cart {
     
   }
 
-  public long getCartId() {
+  public int getCartId() {
     return cartId;
   }
 
-  public long getUserId() {
+  public int getUserId() {
     return userId;
   }
 
-  public List<Long> getProducts() {
+  public List<Integer> getProducts() {
     return products;
   }
 
-  public Map<Long, Integer> getQuantities() {
+  public Map<Integer, Integer> getQuantities() {
     return quantities;
   }
 }
