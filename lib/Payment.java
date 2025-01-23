@@ -1,14 +1,13 @@
-import java.util.Date;
 
 public class Payment {
     private int paymentId;
     private int orderId;
-    private Date paymentDate;
+    private int paymentDate;
     private String paymentMethod;
     private String paymentStatus;
 
     
-    public Payment(int id, int order, Date date, String method, String status) {
+    public Payment(int id, int order, int date, String method, String status) {
         this.paymentId = id;
         this.orderId = order;
         this.paymentDate = date;
@@ -33,11 +32,11 @@ public class Payment {
         this.orderId = orderId;
     }
 
-    public Date getPaymentDate() {
+    public int getPaymentDate() {
         return paymentDate;
     }
 
-    public void setPaymentDate(Date paymentDate) {
+    public void setPaymentDate(int paymentDate) {
         this.paymentDate = paymentDate;
     }
 
