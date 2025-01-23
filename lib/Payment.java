@@ -1,12 +1,14 @@
+import java.util.Date;
+
 public class Payment {
-    private String paymentId;
-    private String orderId;
-    private String paymentDate;
+    private int paymentId;
+    private int orderId;
+    private Date paymentDate;
     private String paymentMethod;
     private String paymentStatus;
 
     
-    public Payment(String id, String order, String date, String method, String status) {
+    public Payment(int id, int order, Date date, String method, String status) {
         this.paymentId = id;
         this.orderId = order;
         this.paymentDate = date;
@@ -15,27 +17,27 @@ public class Payment {
     }
 
     
-    public String getPaymentId() {
+    public int getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(String paymentId) {
+    public void setPaymentId(int paymentId) {
         this.paymentId = paymentId;
     }
 
-    public String getOrderId() {
+    public int getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(String orderId) {
+    public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
 
-    public String getPaymentDate() {
+    public Date getPaymentDate() {
         return paymentDate;
     }
 
-    public void setPaymentDate(String paymentDate) {
+    public void setPaymentDate(Date paymentDate) {
         this.paymentDate = paymentDate;
     }
 

@@ -1,12 +1,12 @@
 public class Review {
-    private String reviewId;
-    private String productId;
-    private String userId;
+    private int reviewId;
+    private int productId;
+    private int userId;
     private int rating;
     private String comment;
 
 
-    public Review(String id, String product, String user, int stars, String feedback) {
+    public Review(int id, int product, int user, int stars, String feedback) {
         this.reviewId = id;
         this.productId = product;
         this.userId = user;
@@ -15,27 +15,27 @@ public class Review {
     }
 
    
-    public String getReviewId() {
+    public int getReviewId() {
         return reviewId;
     }
 
-    public void setReviewId(String reviewId) {
+    public void setReviewId(int reviewId) {
         this.reviewId = reviewId;
     }
 
-    public String getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
