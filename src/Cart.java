@@ -18,7 +18,7 @@ public class Cart {
   }
 
   private double calculateTotalPrice() {
-    
+    return 0;
   }
 
   public int getCartId() {

@@ -4,20 +4,19 @@ import java.util.Map;
 import java.util.Date;
 
 public class Order {
+  private Cart cart;
   private int orderId;
-  private int userId;
   private List<Integer> products; // List of productID in the cart
-  private Map<Integer, Integer> quantities;
+  private Map<Integer, Boolean> isOrder;
   private double totalPrice;
   private Date orderDate;
   private String status;
 
 
-  Order(int orderId, int userId, List<Integer> products, Map<Integer, Integer> quantities, Date orderDate, String status) {
+  Order(int orderId, List<Integer> products, Map<Integer, Boolean> isOrder, Date orderDate, String status) {
     this.orderId = orderId;
-    this.userId = userId;
     this.products = products;
-    this.quantities = quantities;
+    this.isOrder = new HashMap<Integer, Boolean>(isOrder);
     totalPrice = calculateTotalPrice();
     this.orderDate = orderDate;
     this.status = status;
@@ -31,16 +30,12 @@ public class Order {
     return orderId;
   }
 
-  public int getUserId() {
-    return userId;
-  }
-
   public List<Integer> getProducts() {
     return products;
   }
 
-  public Map<Integer, Integer> getQuantities() {
-    return quantities;
+  public Map<Integer, Boolean> isOrder() {
+    return isOrder;
   }
 
   public Date getOrderDate() {
