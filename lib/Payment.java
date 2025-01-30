@@ -1,14 +1,14 @@
 
 public class Payment {
-    private int paymentId;
-    private int orderId;
-    private int paymentDate;
-    private String paymentMethod;
-    private String paymentStatus;
+    static  int paymentId;
+    public  int orderId;
+    public  int paymentDate;
+    public  String paymentMethod;
+    public  String paymentStatus;
 
     
-    public Payment(int id, int order, int date, String method, String status) {
-        this.paymentId = id;
+    public Payment(int paymentId, int order, int date, String method, String status) {
+        paymentId = paymentId +1;
         this.orderId = order;
         this.paymentDate = date;
         this.paymentMethod = method;
@@ -16,43 +16,5 @@ public class Payment {
     }
 
     
-    public int getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(int paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public int getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public int getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(int paymentDate) {
-        this.paymentDate = paymentDate;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
+ 
 }
