@@ -1,4 +1,3 @@
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,23 +16,4 @@ public class Cart {
     totalPrice = calculateTotalPrice();
   }
 
-  private double calculateTotalPrice() {
-    
-  }
-
-  public int getCartId() {
-    return cartId;
-  }
-
-  public int getUserId() {
-    return userId;
-  }
-
-  public List<Integer> getProducts() {
-    return products;
-  }
-
-  public Map<Integer, Integer> getQuantities() {
-    return quantities;
-  }
 }

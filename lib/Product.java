@@ -1,14 +1,14 @@
 public class Product {
-    private int productId;
-    private String name;
-    private double price;
-    private int stock;
-    private String category;
-    private String description;
+    static  int productId;
+    public String name;
+    public  double price;
+    public  int stock;
+    public  String category;
+    public String description;
 
    
     public Product(int productId, String productName, double productPrice, int productStock, String productCategory, String productDescription) {
-        this.productId = productId;
+        productId = productId +1;
         this.name = productName;
         this.price = productPrice;
         this.stock = productStock;
@@ -17,51 +17,5 @@ public class Product {
     }
 
     
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String productName) {
-        this.name = productName;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double productPrice) {
-        this.price = productPrice;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public void setStock(int productStock) {
-        this.stock = productStock;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String productCategory) {
-        this.category = productCategory;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String productDescription) {
-        this.description = productDescription;
-    }
+    
 }
