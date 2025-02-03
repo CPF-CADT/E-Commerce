@@ -4,9 +4,7 @@ public class Category {
     private int categoryId;
     private String categoryName;
     private String description;
-    private int parentCategoryId;
     private boolean isActive;
-    private String imageUrl;
     private Date createdDate;
     private Date updatedDate;
 
@@ -15,9 +13,7 @@ public class Category {
         this.categoryId = id;
         this.categoryName = name;
         this.description = desc;
-        this.parentCategoryId = parentId;
         this.isActive = active;
-        this.imageUrl = image;
         this.createdDate = created;
         this.updatedDate = updated;
     }
