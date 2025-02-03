@@ -1,8 +1,8 @@
 public class Product {
-    static  int productId;
+    private static int productId;
     public String name;
     public  double price;
-    public  int stock;
+    private int stock;
     public  String category;
     public String description;
 
