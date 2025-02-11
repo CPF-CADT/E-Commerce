@@ -1,3 +1,4 @@
+package utils;
 public class Review {
     static  int reviewId;
     public  int productId;

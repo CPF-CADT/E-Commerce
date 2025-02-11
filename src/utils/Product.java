@@ -1,3 +1,4 @@
+package utils;
 public class Product {
     private static int productId;
     public String name;
