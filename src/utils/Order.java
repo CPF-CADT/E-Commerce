@@ -9,7 +9,7 @@ public class Order {
   public String status;
 
   public Order(Cart cart, String status) {
-    orderId = orderId +1;
+    orderId++;
     this.cart = cart;
     this.status = status;
   }
