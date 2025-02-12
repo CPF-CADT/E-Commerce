@@ -3,15 +3,26 @@ public class Admin {
     static int adminId;
     public  String name;
     public String email;
-    private String password;
+    private String adminPassword;
 
-    // Constructor
-    public Admin(int adminId, String adminName, String adminEmail, String adminPassword) {
-        adminId = adminId +1;
+ 
+    public Admin(String adminName, String adminEmail, String password) {
+        adminId = adminIdCounter+1;
         this.name = adminName;
         this.email = adminEmail;
-        this.password = adminPassword;
-        
+        Admin.adminPassword = password;
     }
 
+    public static boolean isValidPassword(String password) {
+        return Admin.adminPassword.equals(password);
+    }
+
+    public String getPassword() {
+        return adminPassword;
+    }
+
+    public void setPassword(String password) {
+        Admin.adminPassword = password;
+    }
+    
 }
