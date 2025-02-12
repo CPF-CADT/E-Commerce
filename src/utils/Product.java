@@ -1,3 +1,11 @@
+package utils;
+public class Product {
+    private static int productId;
+    public String name;
+    public  double price;
+    private int stock;
+    public  String category;
+    public String description;
 
 import java.util.HashMap;
 

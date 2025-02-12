@@ -1,3 +1,4 @@
+package utils;
 import java.util.Date;
 
 public class Category {
@@ -7,7 +8,6 @@ public class Category {
     private boolean isActive;
     private Date createdDate;
     private Date updatedDate;
-
     // Constructor
     public Category(int id, String name, String desc, int parentId, boolean active, String image, Date created, Date updated) {
         this.categoryId = id;

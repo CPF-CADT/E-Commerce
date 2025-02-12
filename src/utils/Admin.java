@@ -1,13 +1,13 @@
-class Admin {
-    private static int adminIdCounter = 0;
-    private int adminId;
-    public String name;
+package utils;
+public class Admin {
+    static int adminId;
+    public  String name;
     public String email;
-    private static String adminPassword;
+    private String adminPassword;
 
  
     public Admin(String adminName, String adminEmail, String password) {
-        this.adminId = adminIdCounter+1;
+        adminId = adminIdCounter+1;
         this.name = adminName;
         this.email = adminEmail;
         Admin.adminPassword = password;
