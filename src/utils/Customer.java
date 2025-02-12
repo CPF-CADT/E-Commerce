@@ -4,15 +4,18 @@ import java.util.Date;
 import java.util.HashMap;
 class Customer extends User implements Authentication {
     private static int counterId = 0;
+    private  int customerId;
     public static HashMap<Integer, Customer> customersById = new HashMap<>();
     public static HashMap<String, Customer> customersByEmail = new HashMap<>();
+   //for login
     public Customer(String email, String password) {
         super(email, password);
     }
+    //for registration
     public Customer(String firstname,String lastname, String email, String password, String address, String phoneNumber, Date dateOfBirth) {
         super(firstname,lastname, email, password, address, phoneNumber, dateOfBirth);
-        this.userId = ++counterId;
-        customersById.put(userId, this);
+        this.customerId = ++counterId;
+        customersById.put(this.customerId, this);
         
     }
 
@@ -27,6 +30,7 @@ class Customer extends User implements Authentication {
     }
 
     @Override
+    // login field use interface
     public Customer login(Object t) {
         Customer customer = (Customer)(t);  // Cast Object to Customer
        for(Customer foundCustomer : customersById.values()) {
