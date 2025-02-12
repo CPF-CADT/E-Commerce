@@ -21,25 +21,25 @@ public class Product {
         productsById.put(this.productId, this);
     }
 
-    // Getter for stock
-    // public int getStock(Admin admin, String email, String password) {
-    //     if (admin != null && admin.login(email, password)) {
-    //         return stock;
-    //     } else {
-    //         System.out.println("Access denied. Invalid admin credentials.");
-    //         return -1;  // Returns -1 to indicate access denial
-    //     }
-    // }
+    // Getter for stock - Only admins can view stock
+    public int getStock(Admin admin) {
+        if (admin != null) {
+            return stock;
+        } else {
+            System.out.println("Access denied. Only admins can view stock.");
+            return -1;  // Returns -1 to indicate access denial
+        } 
+    }
 
-    // Setter for stock - Only Admins can update stock
-    // public void setStock(int newStock, Admin admin, String email, String password) {
-    //     if (admin != null && admin.login(email, password)) {
-    //         this.stock = newStock;
-    //         System.out.println("Stock updated successfully to " + newStock);
-    //     } else {
-    //         System.out.println("Access denied. Invalid admin credentials.");
-    //     }
-    // }
+    // Setter for stock - Only admins can update stock
+    public void setStock(int newStock, Admin admin) {
+        if (admin != null) {
+            this.stock = newStock;
+            System.out.println("Stock updated successfully to " + newStock);
+        } else {
+            System.out.println("Access denied. Only admins can update stock.");
+        }
+    }
 
     @Override
     public String toString() {

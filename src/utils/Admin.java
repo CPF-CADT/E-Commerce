@@ -12,7 +12,7 @@ public class Admin extends User implements Authentication {
 
     public Admin(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date dateOfBirth, String position) {
         super(firstname, lastname, email, password, address, phoneNumber, dateOfBirth);
-        this.adminId = ++counterId;
+        this.adminId = counterId +1;
         this.position = position;
 
         adminsById.put(this.adminId, this);
@@ -43,12 +43,14 @@ public class Admin extends User implements Authentication {
     }
 
     @Override
-    public Object login(Object t) {
+    public Admin login(Object t) {
+        Admin admin = (Admin)(t);
         for (Admin adm : adminsById.values()) {
-            if (t.equals(adm)) {
+            if (admin.equals(adm)) {
                 return adm;
             }
         }
         return null;
     }
+
 }

@@ -2,7 +2,7 @@ package utils;
 
 import java.util.Date;
 import java.util.HashMap;
-class Customer extends User {
+class Customer extends User implements Authentication {
     private static int counterId = 0;
     public static HashMap<Integer, Customer> customersById = new HashMap<>();
     public static HashMap<String, Customer> customersByEmail = new HashMap<>();
@@ -15,14 +15,6 @@ class Customer extends User {
         customersById.put(userId, this);
         
     }
-    public static Customer login(Customer t) {
-        for (Customer customer : customersById.values()) {
-            if (t.equals(customer)) {
-                return customer;
-            }
-        }
-        return null;
-    }
 
     @Override
     public String toString() {
@@ -33,5 +25,19 @@ class Customer extends User {
         super.displayUserInfo();
         System.out.println("====================================\n");
     }
+
+    @Override
+    public Customer login(Object t) {
+        Customer customer = (Customer)(t);  // Cast Object to Customer
+       for(Customer foundCustomer : customersById.values()) {
+        if (foundCustomer != null && customer.equals(foundCustomer)) {
+            return foundCustomer;  // Return the matched customer
+        }
+    }
+        return null;
+        
+    
+    }
+    
 }
 
