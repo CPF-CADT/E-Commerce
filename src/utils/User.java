@@ -1,4 +1,5 @@
 package utils;
+import java.util.Date;
 import java.util.HashMap;
 
 public class User {
