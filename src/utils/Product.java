@@ -1,12 +1,4 @@
 package utils;
-public class Product {
-    private static int productId;
-    public String name;
-    public  double price;
-    private int stock;
-    public  String category;
-    public String description;
-
 import java.util.HashMap;
 
 public class Product {
@@ -29,27 +21,35 @@ public class Product {
         productsById.put(this.productId, this);
     }
 
-    public int getStock() {
-        return stock;
-    }
-    
-    public void setStock(int stock, Admin admin) {
-        if (admin.getPassword() != null && Admin.isValidPassword(admin.getPassword())) {
-            this.stock = stock;
-            System.out.println("Stock updated successfully.");
+    // Getter for stock - Only admins can view stock
+    public int getStock(Admin admin) {
+        if (admin != null) {
+            return stock;
         } else {
-            System.out.println("Access denied. Incorrect password.");
+            System.out.println("Access denied. Only admins can view stock.");
+            return -1;  // Returns -1 to indicate access denial
+        } 
+    }
+
+    // Setter for stock - Only admins can update stock
+    public void setStock(int newStock, Admin admin) {
+        if (admin != null) {
+            this.stock = newStock;
+            System.out.println("Stock updated successfully to " + newStock);
+        } else {
+            System.out.println("Access denied. Only admins can update stock.");
         }
     }
+
     @Override
-public String toString() {
-    return "Product{" +
-            "productId=" + productId +
-            ", name='" + name + '\'' +
-            ", price=" + price +
-            ", stock=" + stock +
-            ", category='" + category + '\'' +
-            ", description='" + description + '\'' +
-            '}';
-}
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", category='" + category + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }
