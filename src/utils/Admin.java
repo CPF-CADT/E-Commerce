@@ -3,7 +3,7 @@ package utils;
 import java.util.Date;
 import java.util.HashMap;
 
-public class Admin implements Account {
+public class Admin extends U  Account {
     private static int counterId = 0;
     public int adminId;
     public String name;

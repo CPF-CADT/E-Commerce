@@ -16,7 +16,7 @@ public class Category {
         this.isActive = active;
         this.createdDate = created;
         this.updatedDate = updated;
-    }
+    }   
 
     
 }
