@@ -1,12 +1,4 @@
 package utils;
-public class Product {
-    private static int productId;
-    public String name;
-    public  double price;
-    private int stock;
-    public  String category;
-    public String description;
-
 import java.util.HashMap;
 
 public class Product {
@@ -29,27 +21,35 @@ public class Product {
         productsById.put(this.productId, this);
     }
 
-    public int getStock() {
-        return stock;
-    }
-    
-    public void setStock(int stock, Admin admin) {
-        if (admin.getPassword() != null && Admin.isValidPassword(admin.getPassword())) {
-            this.stock = stock;
-            System.out.println("Stock updated successfully.");
-        } else {
-            System.out.println("Access denied. Incorrect password.");
-        }
-    }
+    // Getter for stock
+    // public int getStock(Admin admin, String email, String password) {
+    //     if (admin != null && admin.login(email, password)) {
+    //         return stock;
+    //     } else {
+    //         System.out.println("Access denied. Invalid admin credentials.");
+    //         return -1;  // Returns -1 to indicate access denial
+    //     }
+    // }
+
+    // Setter for stock - Only Admins can update stock
+    // public void setStock(int newStock, Admin admin, String email, String password) {
+    //     if (admin != null && admin.login(email, password)) {
+    //         this.stock = newStock;
+    //         System.out.println("Stock updated successfully to " + newStock);
+    //     } else {
+    //         System.out.println("Access denied. Invalid admin credentials.");
+    //     }
+    // }
+
     @Override
-public String toString() {
-    return "Product{" +
-            "productId=" + productId +
-            ", name='" + name + '\'' +
-            ", price=" + price +
-            ", stock=" + stock +
-            ", category='" + category + '\'' +
-            ", description='" + description + '\'' +
-            '}';
-}
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", category='" + category + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }
