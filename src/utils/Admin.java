@@ -14,7 +14,6 @@ public class Admin extends User implements Authentication {
         super(firstname, lastname, email, password, address, phoneNumber, dateOfBirth);
         this.adminId = counterId +1;
         this.position = position;
-
         adminsById.put(this.adminId, this);
     }
     public Admin(String email, String password) {
