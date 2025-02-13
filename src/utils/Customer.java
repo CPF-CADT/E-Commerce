@@ -27,7 +27,7 @@ public class Customer extends User implements Authentication {
 
     @Override
     // login field use interface
-    public Customer login(Object t) {
+    public Customer login(User t) {
         Customer customer = (Customer)(t);  // Cast Object to Customer
         for(Customer foundCustomer : customersById.values()) {
             if (customer.equals(foundCustomer)) {

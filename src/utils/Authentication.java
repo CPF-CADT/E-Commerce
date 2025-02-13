@@ -1,6 +1,6 @@
 package utils;
 
 public interface Authentication {
-    Object login(Object t);
+    User login(User t);
       
 }

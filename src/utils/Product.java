@@ -22,7 +22,7 @@ public class Product {
     }
 
     // Getter for stock - Only admins can view stock
-    public int getStock(Admin admin) {
+    public int getStock(Staff admin) {
         if (admin != null) {
             return stock;
         } else {
@@ -32,7 +32,7 @@ public class Product {
     }
 
     // Setter for stock - Only admins can update stock
-    public void setStock(int newStock, Admin admin) {
+    public void setStock(int newStock, Staff admin) {
         if (admin != null) {
             this.stock = newStock;
             System.out.println("Stock updated successfully to " + newStock);
