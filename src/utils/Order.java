@@ -4,14 +4,15 @@ import java.util.Date;
 
 public class Order {
   static int orderId = 0;
-  public Cart cart;
-  public Date orderDate = new Date();
+  public Date orderDate;
   public String status;
+  Cart cart;
 
   public Order(Cart cart, String status) {
     orderId++;
     this.cart = cart;
     this.status = status;
+    orderDate = new Date();
   }
   
 }
