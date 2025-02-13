@@ -13,7 +13,7 @@ public class User {
     public Date Dateofbirth;
 
     public User(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
-        this.userId = counterId+1; 
+        this.userId = ++counterId; 
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
