@@ -1,11 +1,11 @@
 public class Admin {
-    private long adminId;
+    private int adminId;
     private String name;
     private String email;
     private String password;
 
     // Constructor
-    public Admin(long id, String adminName, String adminEmail, String adminPassword) {
+    public Admin(int id, String adminName, String adminEmail, String adminPassword) {
         this.adminId = id;
         this.name = adminName;
         this.email = adminEmail;
@@ -13,11 +13,11 @@ public class Admin {
     }
 
     // Getters and Setters
-    public long getAdminId() {
+    public int getAdminId() {
         return adminId;
     }
 
-    public void setAdminId(long adminId) {
+    public void setAdminId(int adminId) {
         this.adminId = adminId;
     }
 
