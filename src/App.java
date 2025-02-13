@@ -30,7 +30,7 @@ public class App {
 
         // Display all Admin objects
         System.out.println("\nDisplaying all Admins:");
-        for (Staff admin : Staff.adminsById.values()) {
+        for (Staff admin : Staff.staffList.values()) {
             admin.viewAlladmin();
         }
         // Display total registered admins
