@@ -6,6 +6,7 @@ import java.util.Map;
 public class Category {
     private String id;   
     public String name; 
+    private boolean blocked; 
     static Map<String, Category> categoryList = new HashMap<>();
     
     // Constructor to initialize Category
@@ -62,6 +63,22 @@ public class Category {
     public static void listAllCategories() {
         for (Map.Entry<String, Category> entry : categoryList.entrySet()) {
             System.out.println("ID: " + entry.getKey() + ", Name: " + entry.getValue().name);
+        }
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public static void blockCategory(String id, String userRole) {
+        if (!userRole.equals("admin")) {
+            System.out.println("Access denied: Only admin can block categories.");
+            return;
+        }
+        Category category = categoryList.get(id);
+        if (category != null) {
+            category.blocked = true;
+            System.out.println("Category with ID " + id + " has been blocked.");
         }
     }
 }
