@@ -1,6 +1,6 @@
 package utils;
+import java.util.Date;
 import java.util.HashMap;
-
 public class User {
     private static int counterId = 0;
     public int userId;
