@@ -1,22 +1,22 @@
 package utils;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Cart {
-  private int cartId;
-  private int userId;
-  private List<Integer> products; // List of productID in the cart
-  private Map<Integer, Integer> quantities;
-  private double totalPrice;
+  static int idCounter = 0;
+  public int cartId;
+  int userId;
+  Map<Product, Integer> quantities = new HashMap<Product, Integer>();
+  double totalPrice = 0.0;
   
-
-  Cart(int cartId, int userId, List<Integer> products, Map<Integer, Integer> quantities) {
-    this.cartId = cartId;
+  public Cart(int userId, Map<Product, Integer> quantities) {
+    cartId = ++idCounter;
     this.userId = userId;
-    this.products = products;
     this.quantities = quantities;
-    totalPrice = calculateTotalPrice();
+    for (Map.Entry<Product,Integer> entry : quantities.entrySet()) {
+      totalPrice += entry.getKey().price * entry.getValue();
+    }
   }
 
 }

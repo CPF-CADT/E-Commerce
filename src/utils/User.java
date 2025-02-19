@@ -1,57 +1,59 @@
 package utils;
 import java.util.Date;
-import java.util.HashMap;
+
 public class User {
     private static int counterId = 0;
     public int userId;
-    public String name;
+    public String firstname;
+    public String lastname;
     public String email;
     private String password;
     public String address;
     public String phoneNumber;
     public Date Dateofbirth;
 
-    public static HashMap<Integer, User> usersById = new HashMap<>();
-    public static HashMap<String, User> usersByEmail = new HashMap<>();
-
-    public User(String name, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
+    public User(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
         this.userId = ++counterId; 
-        this.name = name;
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.Dateofbirth = Dateofbirth;
-        
-        usersById.put(this.userId, this);
-        usersByEmail.put(this.email, this);
     }
-    // User register
-    public static User register(String name, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
-        if (usersByEmail.containsKey(email)) {
-            System.out.println("Email already registered.");
-            return null;
-        }
-        User newUser = new User(name, email, password, address, phoneNumber, Dateofbirth);
-        System.out.println("Registration successful! User ID: " + newUser.userId);
-        return newUser;
-    }
-    //User login
-    public static User login(String email, String password) {
-        User user = usersByEmail.get(email);
-        if (user != null && user.password.equals(password)) {
-            System.out.println("Login successful! Welcome, " + user.name);
-            return user;
-        } else {
-            System.out.println("Invalid email or password.");
-            return null;
-        }
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
     }
     
-    public void setPassword(String newPassword) {
-        this.password = newPassword;
-        System.out.println("Password has been updated.");
+   
+    public String getPassword(String curPassword) {
+        if (curPassword.equals(this.password)) {
+            return password;
+        } else {
+            return "Password Invalid";
+        }
     }
+    public void setPassword(String newPassword, String curPassword) {
+        if (curPassword.equals(this.password)) {
+            this.password = newPassword;
+            } else {
+                System.out.println("Password Invalid");
+            }
+        }
+        public void displayUserInfo() {
+            System.out.println("\n====================================");
+            System.out.println("              USER DETAILS      ");
+            System.out.println("====================================");
+            System.out.println("User ID      : " + userId);
+            System.out.println("First Name   : " + firstname);
+            System.out.println("Last Name    : " + lastname);
+            System.out.println("Address      : " + address);
+            System.out.println("Phone Number : " + phoneNumber);
+            System.out.println("Email        : " + email);
+            System.out.println("Date of Birth: " + Dateofbirth);
+        }
     
     public static int getTotalUsers() {
         return counterId;  
@@ -61,7 +63,8 @@ public class User {
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", name='" + name + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
@@ -79,49 +82,34 @@ public class User {
 
     @Override
     public int hashCode() {
-        return email.hashCode() + password.hashCode();
+        return email.hashCode();
+    }
+   
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setEmail(String email, String conPassword) {
+        if (conPassword.equals(this.password)) {
+            this.email = email;
+        } else {
+            System.out.println("Password Invalid");
+        }
+    }
+
+    public void setPhoneNumber(String phoneNumber, String conPassword) {
+        if (conPassword.equals(this.password)) {
+            this.phoneNumber = phoneNumber;
+        } else {
+            System.out.println("Password Invalid");
+        }
     }
     
-    public static User findUser(User user) {
-        for (User u : usersById.values()) {
-            if (user.equals(u)) {
-                return u;
-            }
-        }
-        return null;
-    }
-    public static void main(String[] args) {
-        User user1 = register("John Doe", "john@example.com", "password123", "123 Main St", "1234567890", new Date());
-        User user2 = register("Alice Smith", "alice@example.com", "alicepass", "456 Elm St", "0987654321", new Date());
-        User user3 = register("Bob Johnson", "bob@example.com", "bobpass", "789 Oak St", "5678901234", new Date());
-        
-        // Attempt to login with correct credentials
-        login("john@example.com", "password123");
-        login("alice@example.com", "alicepass");
-        login("bob@example.com", "bobpass");
-        
-        // Attempt to login with incorrect credentials
-        login("john@example.com", "wrongpassword");
-        login("alice@example.com", "incorrect");
-        
-        // Change password
-        if (user1 != null) {
-            user1.setPassword("newpassword456");
-        }
-        
-        // Verify total users
-        System.out.println("Total registered users: " + getTotalUsers());
-        
-        // Print user details
-        if (user1 != null) {
-            System.out.println(user1.toString());
-        }
-        if (user2 != null) {
-            System.out.println(user2.toString());
-        }
-        if (user3 != null) {
-            System.out.println(user3.toString());
-        }
-    }
-}
+    
+
+ }
 
