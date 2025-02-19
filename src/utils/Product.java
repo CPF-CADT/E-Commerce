@@ -1,9 +1,6 @@
 package utils;
-<<<<<<< HEAD
 
 
-=======
->>>>>>> a494b256fe98f1f74ad465f4c8db9bf53f1171e2
 import java.util.HashMap;
 
 public class Product {
