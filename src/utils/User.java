@@ -9,10 +9,10 @@ public abstract class User {
     public String lastname;
     public String email;
     private String password;
-    public String address;
-    public String phoneNumber;
+    protected String address;
+    protected String phoneNumber;
     public Date Dateofbirth;
-   public static HashMap<Integer, User> userList = new HashMap<>();
+    public static HashMap<Integer, User> userList = new HashMap<>();
 
     public User(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
         this.userId = ++counterId; 
@@ -112,7 +112,9 @@ public abstract class User {
             System.out.println("Password Invalid");
         }
     }
-    public User login(User t) {
+
+    
+    public static User login(User t) {
         for (User adm : User.userList.values()) {
             if (t.equals(adm)) {
                 return adm;

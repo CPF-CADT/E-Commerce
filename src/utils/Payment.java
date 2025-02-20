@@ -85,20 +85,7 @@ public class Payment {
         }
     }
     
-    // Check if payment is successful
-    public boolean isSuccessful() {
-        return "COMPLETED".equals(this.paymentStatus);
-    }
-    
-    // Calculate tax amount (assuming tax rate passed as parameter)
-    public double calculateTax(double taxRate) {
-        return this.amount * taxRate;
-    }
-    
-    // Calculate total with tax
-    public double calculateTotalWithTax(double taxRate) {
-        return this.amount + calculateTax(taxRate);
-    }
+
     
     // Display payment information
     public String getPaymentSummary() {
@@ -135,4 +122,17 @@ public class Payment {
         }
         return false;
     }
-}
+}    // // Check if payment is successful
+    // public boolean isSuccessful() {
+    //     return "COMPLETED".equals(this.paymentStatus);
+    // }
+    
+    // // Calculate tax amount (assuming tax rate passed as parameter)
+    // public double calculateTax(double taxRate) {
+    //     return this.amount * taxRate;
+    // }
+    
+    // // Calculate total with tax
+    // public double calculateTotalWithTax(double taxRate) {
+    //     return this.amount + calculateTax(taxRate);
+    // }

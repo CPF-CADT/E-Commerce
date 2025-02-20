@@ -3,8 +3,8 @@ package utils;
 import java.util.Date;
 
 public class Staff extends User  {
-    private static int counterId = 0;
-    public int staffId;
+    // private static int counterId = 0;
+    // public int staffId;
     public String position;
 
     

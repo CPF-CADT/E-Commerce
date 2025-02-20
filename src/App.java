@@ -1,4 +1,3 @@
-import static java.lang.System.out;
 import java.util.Date;
 import utils.Customer;
 import utils.Staff;
@@ -46,35 +45,35 @@ public class App {
         User c2 = new Customer("Emma", "Brown", "emma.brown@example.com", "securePass456", "202 Maple Ave", "8765432109", new Date());
         User c3 = new Customer("Michael", "Williams", "michael.williams@example.com", "adminSecret789", "303 Pine St", "7654321098", new Date());
 
-        User loginAttempt1 = new Customer("admin1@example.com", "adminpass1");
-        User loggedInAdmin1 = c1.login(loginAttempt1);
+        User loginAttempt1 = new Customer("david.miller@example.com", "password123"); // why create a customer
+        // User loggedInAdmin1 = c1.login(loginAttempt1);
 
         
-        
-        // System.out.println("\nDisplaying all Admins:");
-        // for (User admin : User.userList.values()) {
-        //     if (admin instanceof Customer) {
-        //         ((Customer) admin).viewAlladmin();
-        //     }
-        // }
-        if (loggedInAdmin1 != null) {
-            System.out.println("Login successful! Welcome, " + loggedInAdmin1.firstname);
-        } else {
-            out.println("Invalid email or password.");
-        }
-
-        // Attempting Admin Login (Incorrect Credentials)
-        User wrongLoginAttempt1 = new Staff("admin1@example.com", "wrongpassword");
-        User failedLogin1 = admin1.login(wrongLoginAttempt1);
-        
-        if (failedLogin1 != null) {
-            System.out.println("Login successful! Welcome, " + failedLogin1.firstname);
+        User user = User.login(loginAttempt1);
+        if (user != null) {
+            System.out.println("Login successful!");
+            if(user instanceof  Staff){
+                Staff staff= (Staff) user;
+                staff.displayUserInfo();
+                // all staff process
+            }else if(user instanceof  Customer){
+                // all staff process
+                Customer customer = (Customer) user;
+                customer.displayUserInfo();
+            }
         } else {
             System.out.println("Invalid email or password.");
         }
-    
-      
+        // Attempting Admin Login (Incorrect Credentials)
+        // User wrongLoginAttempt1 = new Staff("admin1@example.com", "wrongpassword");
+        // User failedLogin1 = admin1.login(wrongLoginAttempt1);
         
+        // if (failedLogin1 != null) {
+        //     System.out.println("Login successful! Welcome, " + failedLogin1.firstname);
+        // } else {
+        //     System.out.println("Invalid email or password.");
+        // }
+   
     }
 }
 
