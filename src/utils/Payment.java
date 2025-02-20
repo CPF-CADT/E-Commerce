@@ -11,58 +11,128 @@ public class Payment {
     public String paymentMethod;
     public String paymentStatus;
     public double amount;
-
-    static ArrayList<Payment> listOfPayments = new ArrayList<Payment>();
     
-    
-    // Constructor
-    public Payment(int orderId, Date paymentDate, String paymentMethod, String paymentStatus, double amount) {
+    // Constructor for new payment
+    public Payment(int orderId, String paymentMethod, double amount) {
         this.paymentId = counter++;
         this.orderId = orderId;
-        this.paymentDate = paymentDate;
         this.paymentMethod = paymentMethod;
-        this.paymentStatus = paymentStatus;
         this.amount = amount;
-        listOfPayments.add(this);
+        this.paymentStatus = "PENDING";
+        this.paymentDate = new Date();
     }
-
-    public Payment(int paymentId,int orderId){
-        this.paymentId = paymentId;
-        this.orderId = orderId;
-    }
-
-    // Getter for paymentId
+    
+    // Getter for paymentId (since it's private)
     public int getPaymentId() {
         return paymentId;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        Payment other = (Payment) obj;
-        if (paymentId == other.paymentId){
-            if(orderId == other.orderId){
+    
+    // Process payment
+    public boolean processPayment() {
+        try {
+            // Simulate payment processing
+            boolean success = validatePayment();
+            
+            if (success) {
+                // Update payment status
+                this.paymentStatus = "COMPLETED";
                 return true;
+            } else {
+                this.paymentStatus = "FAILED";
+                return false;
             }
+        } catch (Exception e) {
+            this.paymentStatus = "ERROR";
+            System.err.println("Error processing payment: " + e.getMessage());
+            return false;
         }
-        return false;
     }
-
-    public static Payment findPayment(Payment paid){
-        for(Payment payment : listOfPayments){
-            if(paid.equals(payment)){
+    
+    // Validate payment details
+    public boolean validatePayment() {
+        if (this.orderId <= 0) {
+            return false;
+        }
+        
+        if (this.amount <= 0) {
+            return false;
+        }
+        
+        if (this.paymentMethod == null || this.paymentMethod.trim().isEmpty()) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Refund payment
+    public boolean refundPayment() {
+        if ("COMPLETED".equals(this.paymentStatus)) {
+            this.paymentStatus = "REFUNDED";
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    // Cancel pending payment
+    public boolean cancelPayment() {
+        if ("PENDING".equals(this.paymentStatus)) {
+            this.paymentStatus = "CANCELLED";
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    // Check if payment is successful
+    public boolean isSuccessful() {
+        return "COMPLETED".equals(this.paymentStatus);
+    }
+    
+    // Calculate tax amount (assuming tax rate passed as parameter)
+    public double calculateTax(double taxRate) {
+        return this.amount * taxRate;
+    }
+    
+    // Calculate total with tax
+    public double calculateTotalWithTax(double taxRate) {
+        return this.amount + calculateTax(taxRate);
+    }
+    
+    // Display payment information
+    public String getPaymentSummary() {
+        return "Payment ID: " + this.paymentId +
+               "\nOrder ID: " + this.orderId +
+               "\nAmount: $" + String.format("%.2f", this.amount) +
+               "\nMethod: " + this.paymentMethod +
+               "\nStatus: " + this.paymentStatus +
+               "\nDate: " + this.paymentDate;
+    }
+    
+    // Static method to find payment by ID (would connect to a storage system in real app)
+    public static Payment findPaymentById(ArrayList<Payment> payments, int id) {
+        for (Payment payment : payments) {
+            if (payment.getPaymentId() == id) {
                 return payment;
             }
         }
         return null;
     }
-    @Override
-    public String toString() {
-        return 
-        " Payment ID     : " + paymentId +
-        " Order ID       : " + orderId +
-        " Payment Date   : " + paymentDate +
-        " Payment Method : " + paymentMethod +
-        " Payment Status : " + paymentStatus + 
-        " Amount         : " + amount;
+    
+    // Update payment method
+    public void updatePaymentMethod(String newMethod) {
+        if ("PENDING".equals(this.paymentStatus)) {
+            this.paymentMethod = newMethod;
+        }
+    }
+    
+    // Update payment amount
+    public boolean updateAmount(double newAmount) {
+        if ("PENDING".equals(this.paymentStatus) && newAmount > 0) {
+            this.amount = newAmount;
+            return true;
+        }
+        return false;
     }
 }

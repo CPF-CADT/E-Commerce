@@ -7,6 +7,7 @@ public class Category {
     private String id;   
     public String name; 
     static Map<String, Category> categoryList = new HashMap<>();
+    
     // Constructor to initialize Category
     public Category(String id, String name) {
         this.id = id;
@@ -21,7 +22,11 @@ public class Category {
         return id;
     }
 
-    public static void addCategory(Category category, Map<String, Category> categoryMap) {
+    public static void addCategory(Category category, Map<String, Category> categoryMap, String userRole) {
+        if (!userRole.equals("admin")) {
+            System.out.println("Access denied: Only admin can add categories.");
+            return;
+        }
         if (category == null || category.getId() == null || category.getId().isEmpty()) {
             return;
         }
@@ -35,8 +40,32 @@ public class Category {
         return categoryList.get(id);
     }
 
+    public static void updateCategoryName(String id, String newName, String userRole) {
+        if (!userRole.equals("admin")) {
+            System.out.println("Access denied: Only admin can update category names.");
+            return;
+        }
+        Category category = categoryList.get(id);
+        if (category != null) {
+            category.name = newName;
+        }
+    }
+
+    public static void removeCategory(String id, String userRole) {
+        if (!userRole.equals("admin")) {
+            System.out.println("Access denied: Only admin can remove categories.");
+            return;
+        }
+        categoryList.remove(id);
+    }
+
+    public static void listAllCategories() {
+        for (Map.Entry<String, Category> entry : categoryList.entrySet()) {
+            System.out.println("ID: " + entry.getKey() + ", Name: " + entry.getValue().name);
+        }
+    }
 }
-//test main
+
 class Main {
     public static void main(String[] args) {
         // Create a map to store categories
@@ -44,10 +73,29 @@ class Main {
 
         // Create some categories
         Category electronics = new Category("1", "Electronics");
+        Category clothing = new Category("2", "Clothing");
 
-        Category.addCategory(electronics, categoryMap);
+        // User role
+        String userRole = "admin";
 
-        String[] searchIds = {"1"}; 
+        // Add categories
+        Category.addCategory(electronics, categoryMap, userRole);
+        Category.addCategory(clothing, categoryMap, userRole);
+
+        // Update category name
+        Category.updateCategoryName("1", "Consumer Electronics", userRole);
+
+        // List all categories
+        Category.listAllCategories();
+
+        // Remove a category
+        Category.removeCategory("2", userRole);
+
+        // List all categories after removal
+        Category.listAllCategories();
+
+        // Search for categories
+        String[] searchIds = {"1", "2"}; 
         for (String id : searchIds) {
             Category foundCategory = Category.searchCategoryById(id, categoryMap);
             if (foundCategory != null) {
@@ -58,4 +106,3 @@ class Main {
         }
     }
 }
-

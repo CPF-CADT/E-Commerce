@@ -1,7 +1,8 @@
 package utils;
 import java.util.Date;
+import java.util.HashMap;
 
-public class User {
+public abstract class User {
     private static int counterId = 0;
     public int userId;
     public String firstname;
@@ -11,6 +12,7 @@ public class User {
     public String address;
     public String phoneNumber;
     public Date Dateofbirth;
+   public static HashMap<Integer, User> userList = new HashMap<>();
 
     public User(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
         this.userId = ++counterId; 
@@ -21,6 +23,8 @@ public class User {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.Dateofbirth = Dateofbirth;
+        userList.put(userId, this);
+
     }
     public User(String email, String password) {
         this.email = email;
@@ -107,6 +111,15 @@ public class User {
         } else {
             System.out.println("Password Invalid");
         }
+    }
+    public User login(User t) {
+        for (User adm : User.userList.values()) {
+            if (t.equals(adm)) {
+                return adm;
+            }
+        }
+        return null;
+
     }
     
     
