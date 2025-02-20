@@ -3,7 +3,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 public abstract class User {
-    private static int counterId = 0;
+    private static int counter = 0;
     public int userId;
     public String firstname;
     public String lastname;
@@ -12,10 +12,10 @@ public abstract class User {
     protected String address;
     protected String phoneNumber;
     public Date Dateofbirth;
-    public static HashMap<Integer, User> userList = new HashMap<>();
+    public static HashMap<String, User> userList = new HashMap<>();
 
     public User(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
-        this.userId = ++counterId; 
+        this.userId = ++counter; 
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
@@ -23,8 +23,6 @@ public abstract class User {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.Dateofbirth = Dateofbirth;
-        userList.put(userId, this);
-
     }
     public User(String email, String password) {
         this.email = email;
@@ -50,7 +48,6 @@ public abstract class User {
             System.out.println("\n====================================");
             System.out.println("              USER DETAILS      ");
             System.out.println("====================================");
-            System.out.println("User ID      : " + userId);
             System.out.println("First Name   : " + firstname);
             System.out.println("Last Name    : " + lastname);
             System.out.println("Address      : " + address);
@@ -60,7 +57,7 @@ public abstract class User {
         }
     
     public static int getTotalUsers() {
-        return counterId;  
+        return counter;  
     }
 
     @Override

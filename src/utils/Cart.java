@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Cart {
-  static int idCounter = 0;
-  public int cartId;
-  int userId;
-  Map<Integer, Integer> quantities = new HashMap<>();
-  double totalPrice = 0.0;
+  static protected int idCounter = 0;
+  protected int cartId;
+  protected int userId;
+  protected Map<Integer, Integer> quantities = new HashMap<>();
+  protected double totalPrice = 0.0;
   
   public Cart(int userId, Map<Integer, Integer> quantities) {
     cartId = ++idCounter;
