@@ -3,10 +3,10 @@ package utils;
 import java.util.Date;
 
 public class Order {
-  static int orderId = 0;
-  public Date orderDate;
-  public String status;
-  Cart cart;
+  static protected int orderId = 0;
+  protected Date orderDate;
+  protected String status;
+  protected Cart cart;
 
   public Order(Cart cart, String status) {
     orderId++;
