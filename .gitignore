@@ -25,9 +25,9 @@
 *.la
 *.a
 *.lib
-*.class
 
 # Executables
 *.exe
 *.out
 *.app
+*.class
