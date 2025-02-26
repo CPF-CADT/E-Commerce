@@ -33,9 +33,9 @@ public class App {
 
         // Display all Admin objects
         System.out.println("\nDisplaying all Admins:");
-        for (User admin : User.userList.values()) {
-            if (admin instanceof Staff) {
-                ((Staff) admin).viewAlladmin();
+        for (User user : User.userList.values()) {
+            if (user instanceof Staff) {
+                ((Staff) user).viewAlladmin();
             }
         }
         // Display total registered admins
@@ -52,7 +52,7 @@ public class App {
         User user = User.login(loginAttempt1);
         if (user != null) {
             System.out.println("Login successful!");
-            if(user instanceof  Staff){
+            if(user instanceof Staff){
                 Staff staff= (Staff) user;
                 staff.displayUserInfo();
                 // all staff process

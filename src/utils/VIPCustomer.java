@@ -1,8 +1,7 @@
-package src.utils;
+package utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import utils.Customer;
 
 public class VIPCustomer extends Customer {
     private double voucherBalance;

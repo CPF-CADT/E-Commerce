@@ -21,6 +21,7 @@ public class Product {
         this.category = productCategory;
         this.description = productDescription;
         productsById.put(this.productId, this);
+      
     }
 
     // Getter for stock - Only admins can view stock
