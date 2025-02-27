@@ -21,7 +21,7 @@ public class Product {
         this.category = productCategory;
         this.description = productDescription;
         productsById.put(this.productId, this);
-      
+        InvalidProductNameException.checkProductName(productName);
     }
 
     // Getter for stock - Only admins can view stock

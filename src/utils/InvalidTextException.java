@@ -1,6 +1,6 @@
 package utils;
 
-public class InvalidTextException extends IllegalArgumentException {
+public class InvalidTextException extends RuntimeException {
     public InvalidTextException() {
         super();
     }
@@ -9,7 +9,7 @@ public class InvalidTextException extends IllegalArgumentException {
     }
     public static void check(String text)  {
         if (!text.matches("[a-zA-Z]+")) {
-            throw new InvalidTextException("Invalid text! It must contain only letters.");
+            throw new InvalidTextException("Invalid text! It must contain only alphabet.");
         }
     }
     

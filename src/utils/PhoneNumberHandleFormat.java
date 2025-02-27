@@ -1,6 +1,6 @@
 package utils;
 
-public class PhoneNumberHandleFormat extends IllegalArgumentException {
+public class PhoneNumberHandleFormat extends IllegalArgumentException{
     public PhoneNumberHandleFormat() {
         super();
     }

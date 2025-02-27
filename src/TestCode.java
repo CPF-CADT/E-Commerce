@@ -1,4 +1,4 @@
-package test_code;
+
 import java.util.Scanner;
 import utils.InvalidTextException;
 
@@ -10,9 +10,9 @@ public class TestCode {
         Scanner scanner = new Scanner(System.in);
         InvalidTextException q = new InvalidTextException("Invalid Name");
         try {
-            System.out.println("Enter First Name: ");
+            System.out.print("Enter First Name: ");
             String firstName = scanner.nextLine();
-            System.out.println("Enter last Name: ");
+            System.out.print("Enter last Name: ");
             String lastname = scanner.nextLine();
             InvalidTextException.check(firstName);
             InvalidTextException.check(lastname);

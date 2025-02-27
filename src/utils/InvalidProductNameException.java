@@ -1,6 +1,6 @@
 package utils;
 
-public class InvalidProductNameException extends IllegalArgumentException {
+public class InvalidProductNameException extends RuntimeException {
     public InvalidProductNameException() {
         super();
     }
