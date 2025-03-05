@@ -1,7 +1,7 @@
+import User.Customer;
+import User.Staff;
+import User.User;
 import java.util.Date;
-import utils.Customer;
-import utils.Staff;
-import utils.User;
 
 
 public class App {
@@ -35,7 +35,8 @@ public class App {
         System.out.println("\nDisplaying all Admins:");
         for (User user : User.userList.values()) {
             if (user instanceof Staff) {
-                ((Staff) user).viewAlladmin();
+                Staff staff = (Staff) user;
+                System.out.println(staff.toString() + "\n");
             }
         }
         // Display total registered admins
@@ -54,12 +55,12 @@ public class App {
             System.out.println("Login successful!");
             if(user instanceof Staff){
                 Staff staff= (Staff) user;
-                staff.displayUserInfo();
-                // all staff process
+                staff.toString();
+                
             }else if(user instanceof  Customer){
-                // all staff process
+               
                 Customer customer = (Customer) user;
-                customer.displayUserInfo();
+                customer.toString();
             }
         } else {
             System.out.println("Invalid email or password.");

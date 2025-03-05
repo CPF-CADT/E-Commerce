@@ -1,7 +1,8 @@
 
+import Exception.InvalidProductNameException;
+import Exception.InvalidTextException;
+import Exception.PhoneNumberHandleFormat;
 import java.util.Scanner;
-import utils.InvalidProductNameException;
-import utils.PhoneNumberHandleFormat;
 import utils.Product;
 
 public class Main {
@@ -10,17 +11,19 @@ public class Main {
         
         System.out.print("Enter phone number: ");
         String phoneNumber = scanner.nextLine();
+        // PhoneNumberHandleFormat q = new PhoneNumberHandleFormat(message:"Invalid Number");
         
         try {
-            PhoneNumberHandleFormat.validatePhoneNumber(phoneNumber);
+            PhoneNumberHandleFormat l = new PhoneNumberHandleFormat(phoneNumber,"^\\+?[0-9]+$" );
             System.out.println("Valid phone number!");
         } catch (PhoneNumberHandleFormat e) {
             System.out.println("Error: " + e.getMessage());
         }
         
-    try {
+        try {
             System.out.print("Enter product name (exactly two words): ");
             String name = scanner.nextLine();
+            InvalidTextException l = new InvalidTextException(name, "^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$");
             
             System.out.print("Enter product price: ");
             double price = scanner.nextDouble();
@@ -36,10 +39,12 @@ public class Main {
             System.out.print("Enter product description: ");
             String description = scanner.nextLine();
             
+        
+        
             Product product = new Product(name, price, stock, category, description);
             System.out.println("Product created successfully: " + product);
             
-        } catch (InvalidProductNameException e) {
+        } catch (InvalidTextException e) {
             System.out.println("An unexpected error occurred.");
         } finally {
             scanner.close();

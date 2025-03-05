@@ -1,6 +1,6 @@
 
+import Exception.InvalidTextException;
 import java.util.Scanner;
-import utils.InvalidTextException;
 
 
 
@@ -14,10 +14,10 @@ public class TestCode {
             String firstName = scanner.nextLine();
             System.out.print("Enter last Name: ");
             String lastname = scanner.nextLine();
-            InvalidTextException.check(firstName);
-            InvalidTextException.check(lastname);
+            InvalidTextException l = new InvalidTextException(firstName, "[a-zA-Z]+");
+            InvalidTextException l1 = new InvalidTextException(lastname, "[a-zA-Z]+");
 
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
 

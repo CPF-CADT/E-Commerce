@@ -1,10 +1,12 @@
-package utils;
+package User;
 import java.util.Date;
 import java.util.HashMap;
 
+import Exception.CastToUserHandleException;
+
 public abstract class User {
     private static int counter = 0;
-    public int userId;
+    // private int userId;
     public String firstname;
     public String lastname;
     public String email;
@@ -15,7 +17,6 @@ public abstract class User {
     public static HashMap<String, User> userList = new HashMap<>();
 
     public User(String firstname, String lastname, String email, String password, String address, String phoneNumber, Date Dateofbirth) {
-        this.userId = ++counter; 
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
@@ -44,17 +45,17 @@ public abstract class User {
                 System.out.println("Password Invalid");
             }
         }
-        public void displayUserInfo() {
-            System.out.println("\n====================================");
-            System.out.println("              USER DETAILS      ");
-            System.out.println("====================================");
-            System.out.println("First Name   : " + firstname);
-            System.out.println("Last Name    : " + lastname);
-            System.out.println("Address      : " + address);
-            System.out.println("Phone Number : " + phoneNumber);
-            System.out.println("Email        : " + email);
-            System.out.println("Date of Birth: " + Dateofbirth);
-        }
+        // public void displayUserInfo() {
+        //     System.out.println("\n====================================");
+        //     System.out.println("              USER DETAILS      ");
+        //     System.out.println("====================================");
+        //     System.out.println("First Name   : " + firstname);
+        //     System.out.println("Last Name    : " + lastname);
+        //     System.out.println("Address      : " + address);
+        //     System.out.println("Phone Number : " + phoneNumber);
+        //     System.out.println("Email        : " + email);
+        //     System.out.println("Date of Birth: " + Dateofbirth);
+        // }
     
     public static int getTotalUsers() {
         return counter;  
@@ -62,23 +63,28 @@ public abstract class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", firstname='" + firstname + '\'' +
+        return 
+                " firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", Dateofbirth=" + Dateofbirth +
-                '}';
+                ", Dateofbirth=" + Dateofbirth;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        User user = (User) obj;
-        return this.email.equals(user.email) && this.password.equals(user.password);
+@Override
+    public boolean equals(Object obj) throws ClassCastException{
+        try{
+            CastToUserHandleException c = new CastToUserHandleException(obj);
+            User log = (User) obj;
+            if (this.email.equals(log.getEmail())) {
+                if ((log.checkPassword(this.password))) {
+                    return true;
+                }
+            }
+        }catch(ClassCastException c){
+            System.out.println(c.getMessage());
+        }
+        return false;
     }
 
     @Override
