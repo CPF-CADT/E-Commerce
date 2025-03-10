@@ -30,4 +30,10 @@
 *.exe
 *.out
 *.app
-*.class
+
+# Project ignore
+
+bin/
+.vscode/settings.json
+src/Database/MySQLConnection.java
+src/Experiment/SQL.java
