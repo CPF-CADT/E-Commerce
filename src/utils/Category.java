@@ -3,15 +3,19 @@ import java.sql.*;
 public class Category {
     protected String ID;
     protected String name;
+    protected String description;
+    protected int numberOfProducts;
 
     // Database connection details
     private static final String URL = "jdbc:mysql://localhost:3306/category_db";
     private static final String USER = "root"; // Change if needed
     private static final String PASSWORD = ""; // Change if needed
 
-    public Category(String ID, String name) {
+    public Category(String ID, String name, String description, int numberOfProducts) {
         this.ID = ID;
         this.name = name;
+        this.description = description;
+        this.numberOfProducts = numberOfProducts;
     }
 
     // Method to connect to the database
@@ -26,12 +30,14 @@ public class Category {
             return;
         }
 
-        String sql = "INSERT INTO categories (ID, name) VALUES (?, ?)";
+        String sql = "INSERT INTO categories (ID, name, description, numberOfProducts) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, category.ID);
             stmt.setString(2, category.name);
+            stmt.setString(3, category.description);
+            stmt.setInt(4, category.numberOfProducts);
             stmt.executeUpdate();
             System.out.println("Category added: " + category);
         } catch (SQLException e) {
@@ -49,7 +55,7 @@ public class Category {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new Category(rs.getString("ID"), rs.getString("name"));
+                return new Category(rs.getString("ID"), rs.getString("name"), rs.getString("description"), rs.getInt("numberOfProducts"));
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving category: " + e.getMessage());
@@ -109,29 +115,35 @@ public class Category {
     // LIST: Retrieve all categories
     public static void listAllCategories() {
         String sql = "SELECT * FROM categories";
-
+    
         try (Connection conn = connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+    
             System.out.println("Categories List:");
             while (rs.next()) {
-                System.out.println("ID: " + rs.getString("ID") + ", Name: " + rs.getString("name"));
+                System.out.println("ID: " + rs.getString("ID") + ", Name: " + rs.getString("name") +
+                    ", Description: " + rs.getString("description") + ", Products: " + rs.getInt("numberOfProducts"));
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving categories: " + e.getMessage());
         }
     }
+    
+
+    
 
     @Override
     public String toString() {
-        return "Category [ID=" + ID + ", name=" + name + "]";
+        return "Category [ID=" + ID + ", name=" + name + ", description=" + description + ", numberOfProducts="
+                + numberOfProducts + "]";
     }
 
     public static void main(String[] args) {
         // Sample Usage
-        Category cat1 = new Category("001", "Electronics");
-        Category cat2 = new Category("002", "Groceries");
+        Category cat1 = new Category("001", "Electronics", "Devices and gadgets", 50);
+        Category cat2 = new Category("002", "Groceries", "Food and beverages", 100);
+
 
         addCategory(cat1, "admin");
         addCategory(cat2, "admin");
