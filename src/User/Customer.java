@@ -13,21 +13,21 @@ public class Customer extends User  {
     }
     //for registration
     public Customer(String firstname,String lastname, String email, String password, String address, String phoneNumber, Date dateOfBirth) {
-        super(firstname,lastname, email, password, address, phoneNumber, dateOfBirth);
+        super(firstname,lastname, email, password, address, phoneNumber,new Date());
         cusId += String.valueOf(++cusCounter);
         User.userList.put(cusId, this); 
         this.isActive = true;
     }
     // for login with database
     public Customer(String userId, String firstname, String lastname, String address, String phoneNumber, String email, String password) {
-        super(firstname, lastname, email, password, address, phoneNumber, new Date());
+        super(firstname, lastname, email, password, address, phoneNumber,new Date());
         this.cusId = userId;
         User.userList.put(cusId, this);
         this.isActive = true;
     }
     @Override
     public String toString() {
-            return "Customer{" + super.toString()
+            return "Customer{" + super.toString() +
                     ", isActive='" + isActive + '\'' +
                     '}';
     }

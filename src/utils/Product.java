@@ -10,8 +10,8 @@ public class Product {
     public String name;
     public double price;
     private int stock;
-    public String category;
-    public String description;
+    protected String category;
+    protected String description;
     public static HashMap<Integer, Product> productsById = new HashMap<>();
 
     public Product(String productName, double productPrice, int productStock, String productCategory, String productDescription) {

@@ -1,5 +1,4 @@
 
-import Exception.InvalidProductNameException;
 import Exception.InvalidTextException;
 import Exception.PhoneNumberHandleFormat;
 import java.util.Scanner;

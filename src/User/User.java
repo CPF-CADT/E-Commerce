@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import Exception.CastToUserHandleException;
 
-public abstract class User {
+public abstract class User implements Authentication {
     private static int counter = 0;
     // private int userId;
     public String firstname;
@@ -77,7 +77,7 @@ public abstract class User {
             CastToUserHandleException c = new CastToUserHandleException(obj);
             User log = (User) obj;
             if (this.email.equals(log.getEmail())) {
-                if ((log.checkPassword(this.password))) {
+                if ((log.checkingPassword(this.password))) {
                     return true;
                 }
             }
@@ -115,6 +115,14 @@ public abstract class User {
             System.out.println("Password Invalid");
         }
     }
+    public boolean checkingPassword(String password){
+        if(this.password.equals(password)){
+            return true;
+        }else{
+            return false;
+        }
+
+    }  
 
     
     public static User login(User t) {

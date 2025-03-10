@@ -42,9 +42,9 @@ public class App {
         // Display total registered admins
         System.out.println("Total registered admins: " + Staff.getTotalAdmins());
 
-        User c1 = new Customer("David", "Miller", "david.miller@example.com", "password123", "101 Sunset Blvd", "9876543210", new Date());
-        User c2 = new Customer("Emma", "Brown", "emma.brown@example.com", "securePass456", "202 Maple Ave", "8765432109", new Date());
-        User c3 = new Customer("Michael", "Williams", "michael.williams@example.com", "adminSecret789", "303 Pine St", "7654321098", new Date());
+        // User c1 = new Customer("David", "Miller", "david.miller@example.com", "password123", "101 Sunset Blvd", "9876543210", new Date());
+        // User c2 = new Customer("Emma", "Brown", "emma.brown@example.com", "securePass456", "202 Maple Ave", "8765432109", new Date());
+        // User c3 = new Customer("Michael", "Williams", "michael.williams@example.com", "adminSecret789", "303 Pine St", "7654321098", new Date());
 
         User loginAttempt1 = new Customer("david.miller@example.com", "password123"); // why create a customer
         // User loggedInAdmin1 = c1.login(loginAttempt1);
