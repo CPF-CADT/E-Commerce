@@ -1,3 +1,4 @@
+package Testing;
 
 import Exception.InvalidTextException;
 import java.util.Scanner;
