@@ -1,5 +1,6 @@
 package utils;
 
+import Database.MySQLConnection;
 import User.Staff;
 import java.sql.*;
 import java.util.HashMap;
@@ -18,8 +19,8 @@ public class Product {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    public Product(String productName, double productPrice, int productStock, String productCategoryID, String productDescription) {
-        this.productId = ++productIdCounter;
+    public Product(int id, String productName, double productPrice, int productStock, String productCategoryID, String productDescription) {
+        this.productId = id > 0 ? id : ++productIdCounter;
         this.name = productName;
         this.price = productPrice;
         this.stock = productStock;
@@ -33,13 +34,14 @@ public class Product {
     }
 
     public void saveToDatabase() {
-        String sql = "INSERT INTO products (name, price, stock, categoryID, description) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO products (productId, name, price, stock, categoryID, description) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, this.name);
-            stmt.setDouble(2, this.price);
-            stmt.setInt(3, this.stock);
-            stmt.setString(4, this.categoryID);
-            stmt.setString(5, this.description);
+            stmt.setInt(1, this.productId);
+            stmt.setString(2, this.name);
+            stmt.setDouble(3, this.price);
+            stmt.setInt(4, this.stock);
+            stmt.setString(5, this.categoryID);
+            stmt.setString(6, this.description);
             stmt.executeUpdate();
             System.out.println("Product added: " + this);
         } catch (SQLException e) {
@@ -53,7 +55,14 @@ public class Product {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new Product(rs.getString("name"), rs.getDouble("price"), rs.getInt("stock"), rs.getString("categoryID"), rs.getString("description"));
+                return new Product(
+                        rs.getInt("productId"),
+                        rs.getString("name"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock"),
+                        rs.getString("categoryID"),
+                        rs.getString("description")
+                );
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving product: " + e.getMessage());
@@ -63,13 +72,16 @@ public class Product {
 
     public void updateStock(int newStock, Staff admin) {
         if (admin != null) {
-            this.stock = newStock;
-            String sql = "UPDATE products SET stock = ? WHERE name = ?";
+            int currentStock = getStock(this.productId);
+            int updatedStock = currentStock + newStock;
+
+            String sql = "UPDATE products SET stock = ? WHERE productId = ?";
             try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, newStock);
-                stmt.setString(2, this.name);
+                stmt.setInt(1, updatedStock);
+                stmt.setInt(2, this.productId);
                 stmt.executeUpdate();
-                System.out.println("Stock updated successfully to " + newStock);
+                this.stock = updatedStock;
+                System.out.println("Stock updated successfully to " + updatedStock);
             } catch (SQLException e) {
                 System.out.println("Error updating stock: " + e.getMessage());
             }
@@ -94,13 +106,19 @@ public class Product {
         }
     }
 
-    public int getStock(Staff admin) {
-        if (admin != null) {
-            return stock;
-        } else {
-            System.out.println("Access denied. Only admins can view stock.");
-            return -1;
+    public int getStock(int productId) {
+        int stock = 0;
+        String sql = "SELECT stock FROM products WHERE productId = ?";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, productId);
+            ResultSet r = stmt.executeQuery();
+            if (r.next()) {
+                stock = r.getInt("stock");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving stock: " + e.getMessage());
         }
+        return stock;
     }
 
     @Override

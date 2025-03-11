@@ -1,3 +1,4 @@
+package Testing;
 
 import Database.MySQLConnection;
 import User.Staff;
@@ -9,13 +10,13 @@ import java.util.Scanner;
 public class Login {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        // System.out.print("Email address : ");
-        // String email = input.next();
-        // System.out.print("Password      : ");
-        // String password = input.next();
+         System.out.print("Email address : ");
+         String email = input.next();
+         System.out.print("Password      : ");
+         String password = input.next();
 
         // Use prepared statements to prevent SQL injection
-        String query = "SELECT * FROM Staff";
+        String query = "SELECT * FROM Staff where staffId = 'S004'";
         try {
             // PreparedStatement preparedStatement = MySQLConnection.getConnection().prepareStatement(query);
             // preparedStatement.setString(1, email);

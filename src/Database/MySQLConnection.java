@@ -37,7 +37,7 @@ public class MySQLConnection {
             Statement statement = getConnection().createStatement();
             return statement.executeQuery(query);
         } catch (SQLException e) {
-            System.out.println("Query execution failed!");
+            System.out.println("Query execution failed!"+e.getMessage());
            
         }
         return null;
@@ -49,7 +49,7 @@ public class MySQLConnection {
             Statement statement = getConnection().createStatement();
             return statement.executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println("Update execution failed!");
+            System.out.println("Update execution failed!"+e.getMessage());
          
         }
         return 0;
