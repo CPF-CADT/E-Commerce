@@ -19,8 +19,9 @@ public class Product {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    public Product(int id, String productName, double productPrice, int productStock, String productCategoryID, String productDescription) {
-        this.productId = id > 0 ? id : ++productIdCounter;
+    public Product(String productName, double productPrice, int productStock, String productCategoryID, String productDescription) {
+        // this.productId = id > 0 ? id : ++productIdCounter;
+        this.productId =  ++productIdCounter;
         this.name = productName;
         this.price = productPrice;
         this.stock = productStock;
