@@ -22,7 +22,7 @@ public class Staff extends User  {
     }
     // for login with database
     public Staff(String userId, String firstname, String lastname, String address, String phoneNumber, String email, String password, String position) {
-        super(firstname, lastname, email, password, address, phoneNumber, new Date());
+        super(firstname, lastname, email, password, address, phoneNumber, new Date());  
         this.position = position;
         this.staffId = userId;
         User.userList.put(staffId, this);

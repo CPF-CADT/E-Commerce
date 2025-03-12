@@ -1,57 +1,59 @@
 package utils;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Category {
-    protected String ID;
+    protected String categoryId;
     protected String name;
+    protected String description;
+    protected int numberOfProducts;
 
-    // Database connection details
-    private static final String URL = "jdbc:mysql://localhost:3306/category_db";
-    private static final String USER = "root"; // Change if needed
-    private static final String PASSWORD = ""; // Change if needed
+    private static final String URL = "jdbc:mysql://localhost:3306/e_commerce";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
-    public Category(String ID, String name) {
-        this.ID = ID;
+    public Category(String categoryId, String name, String description, int numberOfProducts) {
+        this.categoryId = categoryId;
         this.name = name;
+        this.description = description;
+        this.numberOfProducts = numberOfProducts;
     }
 
-    // Method to connect to the database
     private static Connection connect() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    // CREATE: Add category to the database
-    public static void addCategory(Category category, String userRole) {
+    public void saveToDatabase(String userRole) {
         if (!userRole.equalsIgnoreCase("admin")) {
             System.out.println("Access denied! Only admins can add categories.");
             return;
         }
-
-        String sql = "INSERT INTO categories (ID, name) VALUES (?, ?)";
-
-        try (Connection conn = connect();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, category.ID);
-            stmt.setString(2, category.name);
+        String sql = "INSERT INTO Category (categoryId, name, description) VALUES (?, ?, ?)";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, this.categoryId);
+            stmt.setString(2, this.name);
+            stmt.setString(3, this.description);
             stmt.executeUpdate();
-            System.out.println("Category added: " + category);
+            System.out.println("Category added: " + this);
         } catch (SQLException e) {
             System.out.println("Error adding category: " + e.getMessage());
         }
     }
 
-    // RETRIEVE: Get category by ID
-    public static Category getCategory(String categoryID) {
-        String sql = "SELECT * FROM categories WHERE ID = ?";
-
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, categoryID);
+    public static Category getCategoryById(String categoryId) {
+        String sql = "SELECT * FROM Category WHERE categoryId = ?";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, categoryId);
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
-                return new Category(rs.getString("ID"), rs.getString("name"));
+                return new Category(
+                        rs.getString("categoryId"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        0 
+                );
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving category: " + e.getMessage());
@@ -59,20 +61,39 @@ public class Category {
         return null;
     }
 
-    // UPDATE: Modify category name
-    public static void updateCategory(String categoryID, String newName, String userRole) {
+    public static List<Product> getProductsByCategory(String categoryId) {
+        List<Product> productList = new ArrayList<>();
+        String sql = "SELECT * FROM Product WHERE categoryId = ?";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, categoryId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Product product = new Product(
+                        rs.getString("productId"),
+                        rs.getString("name"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock"),
+                        rs.getString("categoryId"),
+                        rs.getString("description")
+                );
+                productList.add(product);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving products: " + e.getMessage());
+        }
+        return productList;
+    }
+
+    public void updateCategory(String newName, String newDescription, String userRole) {
         if (!userRole.equalsIgnoreCase("admin")) {
             System.out.println("Access denied! Only admins can update categories.");
             return;
         }
-
-        String sql = "UPDATE categories SET name = ? WHERE ID = ?";
-
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String sql = "UPDATE Category SET name = ?, description = ? WHERE categoryId = ?";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newName);
-            stmt.setString(2, categoryID);
-
+            stmt.setString(2, newDescription);
+            stmt.setString(3, this.categoryId);
             int updatedRows = stmt.executeUpdate();
             if (updatedRows > 0) {
                 System.out.println("Category updated.");
@@ -84,19 +105,14 @@ public class Category {
         }
     }
 
-    // DELETE: Remove category
-    public static void deleteCategory(String categoryID, String userRole) {
+    public static void deleteCategory(String categoryId, String userRole) {
         if (!userRole.equalsIgnoreCase("admin")) {
             System.out.println("Access denied! Only admins can delete categories.");
             return;
         }
-
-        String sql = "DELETE FROM categories WHERE ID = ?";
-
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, categoryID);
-
+        String sql = "DELETE FROM Category WHERE categoryId = ?";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, categoryId);
             int deletedRows = stmt.executeUpdate();
             if (deletedRows > 0) {
                 System.out.println("Category deleted.");
@@ -108,17 +124,12 @@ public class Category {
         }
     }
 
-    // LIST: Retrieve all categories
     public static void listAllCategories() {
-        String sql = "SELECT * FROM categories";
-
-        try (Connection conn = connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            System.out.println("Categories List:");
+        String sql = "SELECT * FROM Category";
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            System.out.println("Category List:");
             while (rs.next()) {
-                System.out.println("ID: " + rs.getString("ID") + ", Name: " + rs.getString("name"));
+                System.out.println("ID: " + rs.getString("categoryId") + ", Name: " + rs.getString("name") + ", Description: " + rs.getString("description"));
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving categories: " + e.getMessage());
@@ -127,23 +138,10 @@ public class Category {
 
     @Override
     public String toString() {
-        return "Category [ID=" + ID + ", name=" + name + "]";
-    }
-
-    public static void main(String[] args) {
-        // Sample Usage
-        Category cat1 = new Category("001", "Electronics");
-        Category cat2 = new Category("002", "Groceries");
-
-        addCategory(cat1, "admin");
-        addCategory(cat2, "admin");
-
-        System.out.println(getCategory("001"));
-
-        updateCategory("001", "Consumer Electronics", "admin");
-
-        listAllCategories();
-
-        deleteCategory("002", "admin");
+        return "Category{" +
+                "categoryId='" + categoryId + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

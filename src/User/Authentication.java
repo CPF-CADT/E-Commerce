@@ -1,6 +1,7 @@
 package User;
 
 public interface Authentication {
-    User login(User t);
-      
+    static User login(User t) {
+        return t;
+    }
 }

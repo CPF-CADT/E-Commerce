@@ -6,11 +6,11 @@ import java.util.Date;
 public class Payment {
     static int counter = 1;
     private int paymentId; //PK
-    public int orderId; //FK
-    public Date paymentDate;
-    public String paymentMethod;
-    public String paymentStatus;
-    public double amount;
+    protected  int orderId; //FK
+    protected  Date paymentDate;
+    protected  String paymentMethod;
+    protected  String paymentStatus;
+    protected  double amount;
     
     // Constructor for new payment
     public Payment(int orderId, String paymentMethod, double amount) {
