@@ -1,11 +1,8 @@
 {
-    "java.project.sourcePaths": [
-        "src",
-        "lib"
-    ],
-    "java.project.outputPath": "bin",
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "c:\\E-Commerce\\mysql-connector-j-9.2.0.jar"
-    ]
+  "java.project.sourcePaths": ["src", "lib"],
+  "java.project.outputPath": "bin",
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "c:\\Users\\User\\CADT\\MySQL\\JDBC\\mysql-connector-j-9.2.0.jar"
+  ]
 }
