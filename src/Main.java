@@ -19,7 +19,9 @@ public class Main {
             System.out.println("Error: " + e.getMessage());
         }
         
-        try {
+        try { 
+            System.out.print("Enter product ID: ");
+            String productId = scanner.nextLine();
             System.out.print("Enter product name (exactly two words): ");
             String name = scanner.nextLine();
             InvalidTextException l = new InvalidTextException(name, "^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$");
@@ -40,7 +42,7 @@ public class Main {
             
         
         
-            Product product = new Product(name, price, stock, category, description);
+            Product product = new Product(productId,name, price, stock, category, description);
             System.out.println("Product created successfully: " + product);
             
         } catch (InvalidTextException e) {
