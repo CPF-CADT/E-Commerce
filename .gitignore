@@ -33,5 +33,5 @@
 
 # Project ignore
 bin/
-.vscode/
+**/.vscode/
 src/Experiment/SQL.java
