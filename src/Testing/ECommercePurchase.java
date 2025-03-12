@@ -1,10 +1,9 @@
 package Testing;
+
 import Database.MySQLConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 class CartItem {
     private String productId;
@@ -24,71 +23,71 @@ class CartItem {
     }
 }
 
-
-
-
 public class ECommercePurchase {
-
-    // Main Cart (ArrayList) to hold products
     private static List<CartItem> cart = new ArrayList<>();
 
     public static void main(String[] args) {
-        // Example user data
-        String orderId = "order123";
-        String userId = "user001";
-        // Adding products to cart
-        addProductToCart("product123", 2);
-        addProductToCart("product124", 1);
+        String userId = "C006"; // Ensure this user exists in the database!
 
-        // Placing the order with payment details
+        addProductToCart("P001", 2); // Use actual productId from your DB
+        addProductToCart("P002", 1); // Use actual productId from your DB
+
         String paymentMethod = "Credit Card";
         String shippingAddress = "123 Main St, City, Country";
         String carrier = "FedEx";
         String trackingNumber = "TRACK12345";
 
         try (Connection connection = MySQLConnection.getConnection()) {
-            // Process the purchase
             processPurchase(userId, paymentMethod, shippingAddress, carrier, trackingNumber, connection);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // Method to add products to cart
     public static void addProductToCart(String productId, int quantity) {
-        // Check if product already exists in the cart
-        for (CartItem item : cart) {
-            if (item.getProductId().equals(productId)) {
-                // If exists, increase quantity
-                item = new CartItem(item.getProductId(), item.getQuantity() + quantity);
-                return;
-            }
-        }
-        // If not in the cart, add new CartItem
         cart.add(new CartItem(productId, quantity));
     }
 
-    // Step 1: Create Order
-    public static int createOrder(String userId, Connection connection) throws SQLException {
-        String query = "INSERT INTO `Order` (userId, orderDate, status) VALUES (?, CURRENT_DATE, 'PENDING')";
-        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, userId);
-            stmt.executeUpdate();
-
-            ResultSet rs = stmt.getGeneratedKeys();
+    // Generate orderId with a safe length
+    public static String generateOrderId(Connection connection) throws SQLException {
+        String query = "SELECT COUNT(*) FROM `Order`"; 
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
-                return rs.getInt(1); // Return the generated orderId
+                int nextId = rs.getInt(1) + 1;
+                return "ORD" + nextId;  // Shorter orderId to avoid DB issues
             }
         }
-        return -1;  // Error if no order is created
+        return "ORD1";
     }
 
-    // Step 2: Add Products to Order_Items Table
-    public static void addProductsToOrder(int orderId, List<CartItem> cartItems, Connection connection) throws SQLException {
+    // Create order safely
+    public static String createOrder(String userId, Connection connection) throws SQLException {
+        if (!doesUserExist(userId, connection)) {
+            System.out.println("Error: User ID " + userId + " does not exist.");
+            return null;
+        }
+
+        String orderId = generateOrderId(connection);
+        String query = "INSERT INTO `Order` (orderId, userId, orderDate, status) VALUES (?, ?, CURRENT_DATE, 'PENDING')";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, orderId);
+            stmt.setString(2, userId);
+            stmt.executeUpdate();
+        }
+        return orderId;
+    }
+
+    public static void addProductsToOrder(String orderId, List<CartItem> cartItems, Connection connection) throws SQLException {
         String query = "INSERT INTO Order_Items (orderId, productId, quantity) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             for (CartItem item : cartItems) {
-                stmt.setInt(1, orderId);
+                if (!doesProductExist(item.getProductId(), connection)) {
+                    System.out.println("Error: Product ID " + item.getProductId() + " does not exist.");
+                    continue; // Skip invalid product
+                }
+                stmt.setString(1, orderId);
                 stmt.setString(2, item.getProductId());
                 stmt.setInt(3, item.getQuantity());
                 stmt.addBatch();
@@ -97,19 +96,17 @@ public class ECommercePurchase {
         }
     }
 
-    // Step 3: Process Payment
-    public static boolean processPayment(int orderId, String paymentMethod, double amount, Connection connection) throws SQLException {
+    // Process payment with paymentId auto-incremented by MySQL
+    public static boolean processPayment(String orderId, String paymentMethod, double amount, Connection connection) throws SQLException {
         String query = "INSERT INTO Payment (orderId, paymentMethod, amount, paymentStatus) VALUES (?, ?, ?, 'PENDING')";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, orderId);
+            stmt.setString(1, orderId);
             stmt.setString(2, paymentMethod);
             stmt.setDouble(3, amount);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;  // Return true if payment is successfully added
+            return stmt.executeUpdate() > 0;
         }
     }
 
-    // Step 4: Update Product Stock
     public static void updateProductStock(List<CartItem> cartItems, Connection connection) throws SQLException {
         String query = "UPDATE Product SET stock = stock - ? WHERE productId = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -122,68 +119,52 @@ public class ECommercePurchase {
         }
     }
 
-    // Step 5: Ship the Order
-    public static boolean shipOrder(int orderId, String shippingAddress, String carrier, String trackingNumber, Connection connection) throws SQLException {
+    public static boolean shipOrder(String orderId, String shippingAddress, String carrier, String trackingNumber, Connection connection) throws SQLException {
         String query = "INSERT INTO Shipping (orderId, shippingDate, shippingAddress, carrier, trackingNumber, status) VALUES (?, CURRENT_DATE, ?, ?, ?, 'PENDING')";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, orderId);
+            stmt.setString(1, orderId);
             stmt.setString(2, shippingAddress);
             stmt.setString(3, carrier);
             stmt.setString(4, trackingNumber);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;  // Return true if shipping is initiated
+            return stmt.executeUpdate() > 0;
         }
     }
 
-    // Step 6: Complete the Order
-    public static void completeOrder(int orderId, Connection connection) throws SQLException {
+    public static void completeOrder(String orderId, Connection connection) throws SQLException {
         String query = "UPDATE `Order` SET status = 'COMPLETED' WHERE orderId = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, orderId);
+            stmt.setString(1, orderId);
             stmt.executeUpdate();
         }
     }
 
-    // Step 7: Process the entire purchase
     public static void processPurchase(String userId, String paymentMethod, String shippingAddress, String carrier, String trackingNumber, Connection connection) throws SQLException {
-        // 1. Create Order
-        int orderId = createOrder(userId, connection);
-        if (orderId == -1) {
+        String orderId = createOrder(userId, connection);
+        if (orderId == null) {
             System.out.println("Failed to create order.");
             return;
         }
 
-        // 2. Add Products to Order
         addProductsToOrder(orderId, cart, connection);
-
-        // 3. Calculate Total Amount
         double totalAmount = calculateTotalAmount(cart, connection);
 
-        // 4. Process Payment
         if (!processPayment(orderId, paymentMethod, totalAmount, connection)) {
             System.out.println("Payment processing failed.");
             return;
         }
 
-        // 5. Update Product Stock
         updateProductStock(cart, connection);
 
-        // 6. Ship the Order
         if (!shipOrder(orderId, shippingAddress, carrier, trackingNumber, connection)) {
             System.out.println("Shipping failed.");
             return;
         }
 
-        // 7. Complete the Order
         completeOrder(orderId, connection);
-
-        // Clear the cart after successful purchase
         cart.clear();
-
-        System.out.println("Purchase completed successfully!");
+        System.out.println("Purchase completed successfully! Order ID: " + orderId);
     }
 
-    // Helper method to calculate total amount for the order
     public static double calculateTotalAmount(List<CartItem> cartItems, Connection connection) throws SQLException {
         double totalAmount = 0;
         String query = "SELECT price FROM Product WHERE productId = ?";
@@ -198,5 +179,25 @@ public class ECommercePurchase {
             }
         }
         return totalAmount;
+    }
+
+    // Check if user exists before creating order
+    private static boolean doesUserExist(String userId, Connection connection) throws SQLException {
+        String query = "SELECT userId FROM User WHERE userId = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        }
+    }
+
+    // Check if product exists before adding to order
+    private static boolean doesProductExist(String productId, Connection connection) throws SQLException {
+        String query = "SELECT productId FROM Product WHERE productId = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        }
     }
 }
