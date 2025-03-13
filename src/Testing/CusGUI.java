@@ -1,6 +1,7 @@
 package Testing;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class CusGUI{
@@ -9,10 +10,6 @@ public class CusGUI{
     private DefaultListModel<String> cartListModel;
     private JList<String> producList;
     private JList<String> cartList;
-
-    public static void main(String[] args) {
-        new CusGUI();
-    }
 
     public CusGUI(){
         frame = new JFrame("Costumer Shop");
@@ -35,6 +32,32 @@ public class CusGUI{
         cartPanel.add(new JScrollPane(cartList), BorderLayout.CENTER);
         JButton checkoutButton = new JButton("Check Out");
         cartPanel.add(checkoutButton, BorderLayout.SOUTH);
+
+        frame.add(productPanel);
+        frame.add(cartPanel);
+
+
+        producListModel.addElement("Laptop - $1000");
+        producListModel.addElement("Iphone - $1000");
+        producListModel.addElement("Samsung - $1000");
+        producListModel.addElement("Smartwatch - $1000");
+
+        checkoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (cartListModel.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Your cart is empty!");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Checkout successful! Thank you for shopping.");
+                    cartListModel.clear();
+                }
+            }
+        });
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new CusGUI();
     }
 
     
