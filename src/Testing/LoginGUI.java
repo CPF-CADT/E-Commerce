@@ -57,7 +57,7 @@ public class LoginGUI extends JFrame {
         passwordField.setBackground(Color.WHITE);
         passwordField.setForeground(Color.DARK_GRAY);
         passwordField.setFont(new Font("Arial", Font.PLAIN, 18)); // Font size increased
-        passwordField.setBorder(BorderFactory.createLineBorder(new Color(255, 0, 0, 128), 2)); // Translucent red border
+        passwordField.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2)); // Translucent red border
         panel.add(passwordField);
 
         // Add focus listener to handle placeholder behavior
