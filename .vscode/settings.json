@@ -1,11 +1,10 @@
 {
-    "java.project.sourcePaths": [
-        "src",
-        "testFolder"
-    ],
-    "java.project.outputPath": "bin",
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "c:\\E-Commerce\\mysql-connector-j-9.2.0.jar"
-    ]
+  "java.project.sourcePaths": ["src", "testFolder"],
+  "java.project.outputPath": "bin",
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "c:\\E-Commerce\\mysql-connector-j-9.2.0.jar",
+    "/home/sat-panha/Documents/mysql-connector-j-9.2.0.jar"
+  ],
+  "java.debug.settings.onBuildFailureProceed": true
 }

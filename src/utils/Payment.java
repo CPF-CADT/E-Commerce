@@ -5,12 +5,14 @@ import java.util.Date;
 
 public class Payment {
     static int counter = 1;
-    private int paymentId; //PK
+    protected  int paymentId; //PK
     protected  int orderId; //FK
     protected  Date paymentDate;
     protected  String paymentMethod;
     protected  String paymentStatus;
     protected  double amount;
+
+    
     
     // Constructor for new payment
     public Payment(int orderId, String paymentMethod, double amount) {
@@ -136,3 +138,4 @@ public class Payment {
     // public double calculateTotalWithTax(double taxRate) {
     //     return this.amount + calculateTax(taxRate);
     // }
+    

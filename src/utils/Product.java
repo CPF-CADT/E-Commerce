@@ -1,6 +1,5 @@
 package utils;
 
-import Database.MySQLConnection;
 import User.Staff;
 import java.sql.*;
 import java.util.HashMap;
@@ -14,6 +13,8 @@ public class Product {
     protected String categoryID;
     protected String description;
     protected static HashMap<Integer, Product> productsById = new HashMap<>();
+
+    
 
     private static final String URL = "jdbc:mysql://localhost:3306/category_db";
     private static final String USER = "root";
@@ -57,7 +58,7 @@ public class Product {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Product(
-                        rs.getInt("productId"),
+                        // rs.getInt("productId"),
                         rs.getString("name"),
                         rs.getDouble("price"),
                         rs.getInt("stock"),

@@ -2,47 +2,57 @@ package Testing;
 
 import Database.MySQLConnection;
 import User.Staff;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
-;
 
 public class Login {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-         System.out.print("Email address : ");
-         String email = input.next();
-         System.out.print("Password      : ");
-         String password = input.next();
+        // System.out.print("Email address: ");
+        // String email = input.next();
+        String email = "john.doe@example.com";
 
-        // Use prepared statements to prevent SQL injection
-        String query = "SELECT * FROM Staff where staffId = 'S004'";
+        // System.out.print("Password: ");
+        // String password = input.next();
+        String password = "password123";
+
+        // Query to fetch user details by email
+        String query = "SELECT * FROM User AS u JOIN Staff AS s ON s.staffId = u.userId WHERE email = ? ;";
         try {
-            // PreparedStatement preparedStatement = MySQLConnection.getConnection().prepareStatement(query);
-            // preparedStatement.setString(1, email);
-            // preparedStatement.setString(2, password);
-            // ResultSet result = preparedStatement.executeQuery();
-            ResultSet result = MySQLConnection.executeQuery(query);
-            if (result != null) {
-                if (result.next()) {
-                    String userId = result.getString("staffId");
-                    String userEmail = result.getString("email");
-                    String phone = result.getString("phoneNumber");
-                    String userPassword = result.getString("password");
-                    String firstName = result.getString("firstname");
-                    String lastName = result.getString("lastname");
-                    String address = result.getString("city");
-                    String position = result.getString("position"); // Retrieve the position
+            PreparedStatement preparedStatement = MySQLConnection.getConnection().prepareStatement(query);
+            preparedStatement.setString(1, email);
+            ResultSet result = preparedStatement.executeQuery();
 
-                    // Create a Staff object
-                    Staff staff = new Staff(userId, firstName, lastName, address, phone, userEmail, userPassword, position);
+            if (result.next()) {
+                String userId = result.getString("userId");
+                String userEmail = result.getString("email");
+                String phone = result.getString("phoneNumber");
+                String storedHashedPassword = result.getString("password"); // Hashed password from DB
+                String firstName = result.getString("firstname");
+                String lastName = result.getString("lastname");
+                String address = result.getString("city");
+                String position = result.getString("position");
+
+                // Verify the hashed password
+                if (storedHashedPassword.equals(password)) {
+                    Staff staff = new Staff(userId, firstName, lastName, address, phone, userEmail, storedHashedPassword, position);
                     System.out.println("Hello " + staff);
                     System.out.println("Login Success");
                 } else {
                     System.out.println("Invalid email or password.");
                 }
+                
+                // if (Encryption.verifyPassword(storedHashedPassword, password)) {
+                //     Staff staff = new Staff(userId, firstName, lastName, address, phone, userEmail, storedHashedPassword, position);
+                //     System.out.println("Hello " + staff);
+                //     System.out.println("Login Success");
+                // } else {
+                //     System.out.println("Invalid email or password.");
+                // }
             } else {
-                System.out.println("Fail");
+                System.out.println("Invalid email or password.");
             }
         } catch (SQLException s) {
             System.out.println("Database error: " + s.getMessage());
