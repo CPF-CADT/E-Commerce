@@ -32,8 +32,6 @@
 *.app
 
 # Project ignore
-
 bin/
-.vscode/settings.json
-src/Database/MySQLConnection.java
+**/.vscode/
 src/Experiment/SQL.java
