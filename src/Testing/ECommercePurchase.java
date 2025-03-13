@@ -4,6 +4,7 @@ import Database.MySQLConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 class CartItem {
     private String productId;
@@ -98,11 +99,15 @@ public class ECommercePurchase {
 
     // Process payment with paymentId auto-incremented by MySQL
     public static boolean processPayment(String orderId, String paymentMethod, double amount, Connection connection) throws SQLException {
-        String query = "INSERT INTO Payment (orderId, paymentMethod, amount, paymentStatus) VALUES (?, ?, ?, 'PENDING')";
+        // Generate a shorter paymentId
+        String paymentId = "PAY" + UUID.randomUUID().toString().substring(0, 10); // First 10 characters of UUID
+
+        String query = "INSERT INTO Payment (paymentId, orderId, paymentMethod, amount, paymentStatus) VALUES (?, ?, ?, ?, 'PENDING')";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, orderId);
-            stmt.setString(2, paymentMethod);
-            stmt.setDouble(3, amount);
+            stmt.setString(1, paymentId);
+            stmt.setString(2, orderId);
+            stmt.setString(3, paymentMethod);
+            stmt.setDouble(4, amount);
             return stmt.executeUpdate() > 0;
         }
     }
