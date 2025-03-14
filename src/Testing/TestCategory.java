@@ -1,10 +1,7 @@
 package Testing;    
+import java.util.List;
 import utils.Category;
 import utils.Product;
-import java.util.List;
-import java.util.ArrayList;
-import Database.MySQLConnection;
-import java.sql.SQLException;
 
 public class TestCategory {
     public static void main(String[] args) {
@@ -14,12 +11,12 @@ public class TestCategory {
 
         // Test 1: Add a Category (Admin only)
         System.out.println("=== Test: Add Category ===");
-        Category newCategory = new Category("C01", "Desktop", "Devices and gadgets", 0);
+        Category newCategory = new Category("C001", "Desktop", "Devices and gadgets", 0);
         newCategory.saveToDatabase(adminRole); // Should succeed
 
         // Test 2: Retrieve Category by ID
         System.out.println("\n=== Test: Retrieve Category ===");
-        Category retrievedCategory = Category.getCategoryById("C01");
+        Category retrievedCategory = Category.getCategoryById("C001");
         if (retrievedCategory != null) {
             System.out.println("Retrieved Category: " + retrievedCategory);
         } else {
@@ -34,7 +31,7 @@ public class TestCategory {
         System.out.println("\n=== Test: Update Category ===");
         if (retrievedCategory != null) {
             retrievedCategory.updateCategory("Updated Electronics", "All electronic devices", adminRole);
-            System.out.println("Updated Category: " + Category.getCategoryById("C01"));
+            System.out.println("Updated Category: " + Category.getCategoryById("C001"));
         }
 
         // Test 5: Retrieve Products by Category
