@@ -7,11 +7,18 @@ import java.util.List;
 import javax.swing.*;
 
 public class CategoryProductGUI {
-    private static final String URL = "jdbc:mysql://localhost:3306/category_db";
-    private static final String USER = "root";
-    private static final String PASSWORD = "";
-
     public static void main(String[] args) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            if (conn != null) {
+                System.out.println("Connection successful!");
+            } else {
+                System.out.println("Connection failed!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+    
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
 
@@ -58,7 +65,7 @@ public class CategoryProductGUI {
     private static List<String> getCategories() {
         List<String> categories = new ArrayList<>();
         String sql = "SELECT name FROM categories";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -73,7 +80,7 @@ public class CategoryProductGUI {
     private static List<String> getProducts(String categoryName) {
         List<String> products = new ArrayList<>();
         String sql = "SELECT name FROM products WHERE categoryID = (SELECT ID FROM categories WHERE name = ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, categoryName);
             ResultSet rs = stmt.executeQuery();
@@ -84,5 +91,29 @@ public class CategoryProductGUI {
             e.printStackTrace();
         }
         return products;
+    }
+}
+
+class DatabaseConnection {
+    private static Connection connection = null;
+    private static final String HOST = "mysql-436bbed-student-f997.h.aivencloud.com";
+    private static final String PORT = "22721";
+    private static final String DATABASE_NAME = "e_commerce";
+    private static final String USERNAME = "avnadmin";
+    private static final String PASSWORD = "AVNS_ikPHseBNRutTggiBZ6w";
+
+    public static Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                connection = DriverManager.getConnection("jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE_NAME + "?sslmode=require", USERNAME, PASSWORD);
+                System.out.println("Connected to MySQL successfully!");
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.println("No driver found: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("ERROR: Could not connect to the server. Please check your network connection. " + e.getMessage());
+        }
+        return connection;
     }
 }
