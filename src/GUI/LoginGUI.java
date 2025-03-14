@@ -1,14 +1,10 @@
-package Testing;
+package GUI;
 
 import Database.MySQLConnection;
-import GUI.CreateAccountGUI;
-import GUI.LoginGUI;
-
-import org.mindrot.jbcrypt.BCrypt; // For password hashing
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.sql.*;
+import javax.swing.*;
+import utils.Encryption;
 
 public class LoginGUI extends JFrame {
 
@@ -58,9 +54,9 @@ public class LoginGUI extends JFrame {
             boolean loginSuccess = validateLogin(email, password);
 
             if (loginSuccess) {
-                JOptionPane.showMessageDialog(this, "🎉 Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, " Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, " Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -94,17 +90,17 @@ public class LoginGUI extends JFrame {
                 System.out.println("🔍 Checking password for user: " + email);
 
                 // Compare hashed password using BCrypt
-                if (BCrypt.checkpw(password, storedHashedPassword)) {
-                    System.out.println("✅ Login successful!");
+                if (Encryption.verifyPassword(storedHashedPassword, password)) {
+                    System.out.println("Login successful!");
                     return true;
                 } else {
-                    System.out.println("❌ Incorrect password!");
+                    System.out.println(" Incorrect password!");
                 }
             } else {
-                System.out.println("❌ No user found with email: " + email);
+                System.out.println(" No user found with email: " + email);
             }
         } catch (SQLException e) {
-            System.out.println("❌ Database error: " + e.getMessage());
+            System.out.println(" Database error: " + e.getMessage());
         }
         return false;
     }

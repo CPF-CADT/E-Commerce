@@ -8,8 +8,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 import utils.Encryption;
 
-
-public class LoginEncrytion {
+public class LoginEncryption {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         
@@ -23,12 +22,11 @@ public class LoginEncrytion {
         String hashedPassword = Encryption.hashPassword(password);
         
         // Corrected query with placeholders
-        String query = "SELECT * FROM User join Staff WHERE email = ? " + "AND password = ?";
+        String query = "SELECT * FROM User join Staff WHERE email = ? ";
         
         try {
             PreparedStatement preparedStatement = MySQLConnection.getConnection().prepareStatement(query);
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, hashedPassword);
             
             ResultSet result = preparedStatement.executeQuery();
             
@@ -37,19 +35,23 @@ public class LoginEncrytion {
                 String userId = result.getString("staffId");
                 String userEmail = result.getString("email");
                 String phone = result.getString("phoneNumber");
-                String userPassword = result.getString("password");
+                String storedPassword = result.getString("password"); // The stored hashed password
                 String firstName = result.getString("firstname");
                 String lastName = result.getString("lastname");
                 String address = result.getString("city");
                 String position = result.getString("position"); 
                 
-
-                // Create a Staff object
-                Staff staff = new Staff(userId, firstName, lastName, address, phone, userEmail, userPassword, position);
-                System.out.println("Hello " + staff);
-                System.out.println("Login Success");
+                // Use the Encryption.verifyPassword method to compare the hashes
+                if (Encryption.verifyPassword(storedPassword, hashedPassword)) {
+                    // Create a Staff object
+                    Staff staff = new Staff(userId, firstName, lastName, address, phone, userEmail, storedPassword, position);
+                    System.out.println("Hello " + staff);
+                    System.out.println("Login Success");
+                } else {
+                    System.out.println("Invalid email or password.");
+                }
             } else {
-                System.out.println("Invalid email or password.");
+                System.out.println("No user found with that email.");
             }
         } catch (SQLException s) {
             System.out.println("Database error: " + s.getMessage());

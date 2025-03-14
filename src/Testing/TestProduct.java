@@ -25,7 +25,7 @@ public class TestProduct {
         // Test 3: Update Product Stock (Admin only)
         System.out.println("\n=== Test: Update Product Stock ===");
         if (retrievedProduct != null) {
-            retrievedProduct.updateStock(10, admin); // Increase stock by 5
+            retrievedProduct.updateStock(15, admin); // Increase stock by 5
             System.out.println("Updated Stock: " + retrievedProduct.getStock());
         }
 
