@@ -1,4 +1,4 @@
-package Testing;
+package GUI;
 
 import java.awt.*;
 import java.sql.*;
