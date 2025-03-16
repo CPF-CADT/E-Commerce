@@ -1,4 +1,4 @@
-package Testing;
+package Resources;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
