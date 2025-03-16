@@ -57,7 +57,7 @@ VALUES
 ('R003', 'P003', 'C008', 5, 'Amazing sound quality and comfortable fit!');
 
 -- Fixed Order table to reference correct Users (Customers)
-INSERT INTO `Order` (orderId, userId, orderDate, status)
+INSERT INTO `Order` (orderId, cartId, orderDate, status)
 VALUES
 ('O001', 'C006', '2025-03-01', 'PENDING'),
 ('O002', 'C007', '2025-02-28', 'COMPLETED'),
