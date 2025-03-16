@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 package Resources;
 
+=======
+>>>>>>> 4b738cbdeaa29a0a9095ca051a6e2fd5dabbb3ed
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,6 +10,8 @@ import javax.swing.*;
 
 public class PaymentGUI extends JFrame {
     private JButton cashPaymentButton, qrPaymentButton;
+    private static final String QR_IMAGE_PATH = "/home/sat-panha/Learn/Python/payment_qr.png";
+    private static final String CHECK_IMAGE_PATH = "/home/sat-panha/Learn/Python/checkmark.png";
 
     public PaymentGUI() {
         setTitle("Payment Methods");
@@ -16,10 +21,11 @@ public class PaymentGUI extends JFrame {
 
         cashPaymentButton = new JButton("Pay by Cash");
         qrPaymentButton = new JButton("Pay by QR Code");
-        
+
         add(cashPaymentButton);
         add(qrPaymentButton);
 
+        // Cash payment action
         cashPaymentButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -27,32 +33,48 @@ public class PaymentGUI extends JFrame {
             }
         });
 
+        // QR payment action
         qrPaymentButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 generateQRCode();
             }
         });
-        
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
-    
+
     private void generateQRCode() {
-        // Simulating QR Code Generation Process
-        ImageIcon qrIcon = new ImageIcon("path_to_qr_code_image.png"); // Replace with real QR generation
-        JOptionPane.showMessageDialog(null, "Scan this QR code to complete your payment.", "QR Payment", JOptionPane.INFORMATION_MESSAGE, qrIcon);
-        
-        // Simulating QR scan success
-        int result = JOptionPane.showConfirmDialog(null, "Did you complete the payment?", "Confirm Payment", JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.YES_OPTION) {
-            ImageIcon checkIcon = new ImageIcon("path_to_checkmark_image.png"); // Replace with real checkmark image
-            JOptionPane.showMessageDialog(null, "Payment Successful!", "Success", JOptionPane.INFORMATION_MESSAGE, checkIcon);
+        ImageIcon qrIcon = loadImage(QR_IMAGE_PATH);
+        if (qrIcon != null) {
+            JOptionPane.showMessageDialog(null, "Scan this QR code to complete your payment.", "QR Payment", JOptionPane.INFORMATION_MESSAGE, qrIcon);
+
+            int result = JOptionPane.showConfirmDialog(null, "Did you complete the payment?", "Confirm Payment", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                ImageIcon checkIcon = loadImage(CHECK_IMAGE_PATH);
+                if (checkIcon != null) {
+                    JOptionPane.showMessageDialog(null, "Payment Successful!", "Success", JOptionPane.INFORMATION_MESSAGE, checkIcon);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Payment Successful, but checkmark image not found.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Payment not completed. Try again.");
+            }
         } else {
-            JOptionPane.showMessageDialog(null, "Payment not completed. Try again.");
+            JOptionPane.showMessageDialog(null, "QR code image not found. Please try again later.");
         }
     }
-    
+
+    private ImageIcon loadImage(String path) {
+        ImageIcon icon = new ImageIcon(path);
+        if (icon.getIconWidth() == -1) {
+            return null; // Image not found
+        }
+        return icon;
+    }
+
+
     public static void main(String[] args) {
         new PaymentGUI();
     }

@@ -41,4 +41,5 @@ public class Customer extends User  {
     //     Customer customer = (Customer) obj;
     //     return super.getEmail().equals(customer.getEmail()) && super.getPassword().equals(customer.getPassword());
     //   }
+
 }

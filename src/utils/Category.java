@@ -1,6 +1,14 @@
 package utils;
+<<<<<<< HEAD
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+=======
 
 import java.sql.*;
+>>>>>>> main
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +18,12 @@ public class Category {
     protected String description;
     protected int numberOfProducts;
 
+<<<<<<< HEAD
+    // Database connection details
+    private static final String URL = "jdbc:mysql://localhost:3306/";
+=======
     private static final String URL = "jdbc:mysql://localhost:3306/e_commerce";
+>>>>>>> main
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
