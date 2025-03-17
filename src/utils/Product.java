@@ -5,8 +5,7 @@ import java.sql.*;
 import java.util.HashMap;
 
 public class Product {
-    private static int productIdCounter = 0;
-    private int productId;
+    private String productId;  // Changed to String to match the database
     protected String name;
     protected double price;
     protected int stock;
@@ -16,13 +15,12 @@ public class Product {
 
     
 
-    private static final String URL = "jdbc:mysql://localhost:3306/category_db";
+    private static final String URL = "jdbc:mysql://localhost:3306/e_commerce";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    public Product(String productName, double productPrice, int productStock, String productCategoryID, String productDescription) {
-        // this.productId = id > 0 ? id : ++productIdCounter;
-        this.productId =  ++productIdCounter;
+    public Product(String productId, String productName, double productPrice, int productStock, String productCategoryID, String productDescription) {
+        this.productId = productId;
         this.name = productName;
         this.price = productPrice;
         this.stock = productStock;
@@ -36,9 +34,9 @@ public class Product {
     }
 
     public void saveToDatabase() {
-        String sql = "INSERT INTO products (productId, name, price, stock, categoryID, description) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Product (productId, name, price, stock, categoryId, description) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, this.productId);
+            stmt.setString(1, this.productId);
             stmt.setString(2, this.name);
             stmt.setDouble(3, this.price);
             stmt.setInt(4, this.stock);
@@ -51,10 +49,10 @@ public class Product {
         }
     }
 
-    public static Product getProductById(int id) {
-        String sql = "SELECT * FROM products WHERE productId = ?";
+    public static Product getProductById(String id) {
+        String sql = "SELECT * FROM Product WHERE productId = ?";
         try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Product(
@@ -62,7 +60,7 @@ public class Product {
                         rs.getString("name"),
                         rs.getDouble("price"),
                         rs.getInt("stock"),
-                        rs.getString("categoryID"),
+                        rs.getString("categoryId"),
                         rs.getString("description")
                 );
             }
@@ -74,13 +72,11 @@ public class Product {
 
     public void updateStock(int newStock, Staff admin) {
         if (admin != null) {
-            int currentStock = getStock(this.productId);
-            int updatedStock = currentStock + newStock;
-
-            String sql = "UPDATE products SET stock = ? WHERE productId = ?";
+            int updatedStock = this.stock + newStock;
+            String sql = "UPDATE Product SET stock = ? WHERE productId = ?";
             try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, updatedStock);
-                stmt.setInt(2, this.productId);
+                stmt.setString(2, this.productId);
                 stmt.executeUpdate();
                 this.stock = updatedStock;
                 System.out.println("Stock updated successfully to " + updatedStock);
@@ -92,11 +88,11 @@ public class Product {
         }
     }
 
-    public static void deleteProduct(int id, Staff admin) {
+    public static void deleteProduct(String id, Staff admin) {
         if (admin != null) {
-            String sql = "DELETE FROM products WHERE productId = ?";
+            String sql = "DELETE FROM Product WHERE productId = ?";
             try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, id);
+                stmt.setString(1, id);
                 stmt.executeUpdate();
                 productsById.remove(id);
                 System.out.println("Product deleted successfully.");
@@ -108,25 +104,24 @@ public class Product {
         }
     }
 
-    public int getStock(int productId) {
-        int stock = 0;
-        String sql = "SELECT stock FROM products WHERE productId = ?";
+    public int getStock() {
+        String sql = "SELECT stock FROM Product WHERE productId = ?";
         try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
-            ResultSet r = stmt.executeQuery();
-            if (r.next()) {
-                stock = r.getInt("stock");
+            stmt.setString(1, this.productId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("stock");
             }
         } catch (SQLException e) {
             System.out.println("Error retrieving stock: " + e.getMessage());
         }
-        return stock;
+        return 0;
     }
 
     @Override
     public String toString() {
         return "Product{" +
-                "productId=" + productId +
+                "productId='" + productId + '\'' +
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", stock=" + stock +

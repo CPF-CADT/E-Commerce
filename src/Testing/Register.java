@@ -1,5 +1,5 @@
 package Testing;
-import Databas   hhe.MySQLConnection;
+import Database.MySQLConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
