@@ -36,13 +36,20 @@ CREATE TABLE IF NOT EXISTS VIPCustomer (
     FOREIGN KEY (customerId) REFERENCES Customer(customerId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+create table if not exists category(
+    categoryId varchar(10) primary key not null,
+    name varchar(255) not null
+);
+
 CREATE TABLE IF NOT EXISTS Product (
     productId VARCHAR(20) PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
     stock INT NOT NULL CHECK (stock >= 0),
     category VARCHAR(255),
-    description TEXT
+    description TEXT,
+    category varchar(10),
+    FOREIGN KEY (categoryId) REFERENCES category(categoryId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Review (

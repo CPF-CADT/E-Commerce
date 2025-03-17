@@ -1,6 +1,6 @@
 USE e_commerce;
 
--- Corrected User data to align staff (S001-S005) and customers (C006-C010)
+-- Insert User Data (Staff and Customers)
 INSERT INTO User (userId, firstname, lastname, email, password, street, city, state, postalCode, country, phoneNumber, dateOfBirth) 
 VALUES
 ('S001', 'John', 'Doe', 'john.doe@example.com', 'password123', '123 Main St', 'New York', 'NY', '10001', 'USA', '555-0101', '1985-05-01'),
@@ -14,8 +14,7 @@ VALUES
 ('C009', 'Grace', 'Moore', 'grace.moore@example.com', 'password123', '606 Elm St', 'Denver', 'CO', '80201', 'USA', '555-0109', '1994-04-23'),
 ('C010', 'Henry', 'Taylor', 'henry.taylor@example.com', 'password123', '707 Ash St', 'Seattle', 'WA', '98101', 'USA', '555-0110', '1987-09-11');
 
-
--- Corrected Staff IDs (Ensuring they match User IDs)
+-- Insert Staff Data
 INSERT INTO Staff (staffId, position)
 VALUES
 ('S001', 'Manager'),
@@ -24,7 +23,7 @@ VALUES
 ('S004', 'Class Monitor'),
 ('S005', 'Assistant');
 
--- Corrected Customer IDs
+-- Insert Customer Data
 INSERT INTO Customer (customerId)
 VALUES
 ('C006'),
@@ -33,7 +32,7 @@ VALUES
 ('C009'),
 ('C010');
 
--- Fixed VIPCustomer entries to reference existing customers
+-- Insert VIP Customers
 INSERT INTO VIPCustomer (vipCustomerId, customerId, voucherBalance, discountCard, vipCardExpiry)
 VALUES
 ('V001', 'C006', 100.00, 0.10, '2025-05-01'),
@@ -42,44 +41,42 @@ VALUES
 ('V004', 'C009', 250.00, 0.25, '2025-08-01'),
 ('V005', 'C010', 300.00, 0.30, '2025-09-01');
 
--- Corrected Product Data
-INSERT INTO Product (productId, name, price, stock, category, description)
+-- Insert Categories
+INSERT INTO Category (categoryId, name)
 VALUES
-('P001', 'Laptop', 1200.00, 50, 'Electronics', 'High-performance laptop with 16GB RAM and 512GB SSD'),
-('P002', 'Smartphone', 799.99, 100, 'Electronics', 'Latest model smartphone with a 48MP camera'),
-('P003', 'Headphones', 199.99, 150, 'Accessories', 'Noise-cancelling over-ear headphones');
+('CAT01', 'Electronics'),
+('CAT02', 'Accessories');
 
--- Fixed Review User ID references to actual customers
+-- Insert Products
+INSERT INTO Product (productId, name, price, stock, categoryId, description)
+VALUES
+('P001', 'Laptop', 1200.00, 50, 'CAT01', 'High-performance laptop with 16GB RAM and 512GB SSD'),
+('P002', 'Smartphone', 799.99, 100, 'CAT01', 'Latest model smartphone with a 48MP camera'),
+('P003', 'Headphones', 199.99, 150, 'CAT02', 'Noise-cancelling over-ear headphones');
+
+-- Insert Reviews
 INSERT INTO Review (reviewId, productId, userId, rating, comment)
 VALUES
 ('R001', 'P001', 'C006', 5, 'Excellent laptop! Fast and reliable.'),
 ('R002', 'P002', 'C007', 4, 'Great smartphone, but battery life could be better.'),
 ('R003', 'P003', 'C008', 5, 'Amazing sound quality and comfortable fit!');
 
--- Fixed Order table to reference correct Users (Customers)
-INSERT INTO `Order` (orderId, cartId, orderDate, status)
+-- Insert Cart Data
+INSERT INTO Cart (cartId, productId, quantity)
 VALUES
-('O001', 'C006', '2025-03-01', 'PENDING'),
-('O002', 'C007', '2025-02-28', 'COMPLETED'),
-('O003', 'C008', '2025-03-02', 'PENDING'),
-('O004', 'C009', '2025-03-01', 'SHIPPED'),
-('O005', 'C010', '2025-02-25', 'CANCELLED');
+('C006', 'P001', 1),
+('C007', 'P002', 2),
+('C008', 'P003', 1);
 
--- Fixed Order_Items to match existing products and orders
-INSERT INTO Order_Items (orderId, productId, quantity)
+-- Insert Orders
+INSERT INTO `Order` (orderId, cartId, orderDate, paymentDate, paymentMethod, status)
 VALUES
-('O001', 'P001', 1),
-('O002', 'P002', 2),
-('O003', 'P003', 1);
+('O001', 'C006', '2025-03-01', '2025-03-01', 'Credit Card', 'PENDING'),
+('O002', 'C007', '2025-02-28', '2025-02-28', 'Debit Card', 'COMPLETED'),
+('O003', 'C008', '2025-03-02', '2025-03-02', 'PayPal', 'PENDING');
 
--- Fixed Payment User References
-INSERT INTO Payment (paymentId, orderId, paymentDate, paymentMethod, paymentStatus, amount)
-VALUES
-('PAY001', 'O001', '2025-03-01', 'Credit Card', 'PENDING', 1200.00),
-('PAY002', 'O002', '2025-02-28', 'Debit Card', 'COMPLETED', 1599.98),
-('PAY003', 'O003', '2025-03-02', 'PayPal', 'PENDING', 199.99);
-
--- Fixed Shipping References to Existing Orders
+-- Insert Shipping Data
 INSERT INTO Shipping (shippingId, orderId, shippingDate, deliveryDate, carrier, trackingNumber, status, shippingAddress)
 VALUES
 ('SH001', 'O001', '2025-03-02', '2025-03-05', 'FedEx', 'TRACK12345', 'IN TRANSIT', '303 Birch St, San Francisco, CA, 94101');
+

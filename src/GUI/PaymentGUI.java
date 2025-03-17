@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-package Resources;
-
-=======
->>>>>>> 4b738cbdeaa29a0a9095ca051a6e2fd5dabbb3ed
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
