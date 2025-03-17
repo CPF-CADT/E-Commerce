@@ -40,12 +40,12 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 
     String[] viewList = { "Customer", "Staff", "Product" };
-    view = new JComboBox(viewList);
+    view = new JComboBox<>(viewList);
     view.addActionListener(this);
     view.setOpaque(false);
 
     String[] viewSort = { "Ascending", "Descending" };
-    sort = new JComboBox(viewSort);
+    sort = new JComboBox<>(viewSort);
     sort.addActionListener(this);
     sort.setOpaque(false);
 
