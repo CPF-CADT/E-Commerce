@@ -22,19 +22,22 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       new ImageIcon("src/GUI/Resources/selected.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
   Color gray = new Color(121, 133, 165);
 
-  JComboBox view;
+  JComboBox view; // Tracked
   JComboBox sort;
-  JRadioButton deleteButton;
-  JRadioButton editButton;
-  JCheckBox check;
-  JTextField search;
+  JRadioButton deleteButton; // Tracked
+  JRadioButton editButton; // Tracked
+  JCheckBox check; // Tracked
+  JTextField search; // Tracked
 
-  String prevText; // For keypress event
+  JButton deleteSelect; // Tracked
+
+  String prevText = new String(); // For keypress event
 
   AdminGUI() {
-    JPanel header = new JPanel();
-    JPanel topHeader = new JPanel();
-    JPanel lowHeader = new JPanel();
+    JPanel header = new JPanel(new GridLayout(2, 1));
+    JPanel topHeader = new JPanel(new GridLayout(1, 4, 10, 0));
+    JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
+    JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 
     String[] viewList = { "Customer", "Staff", "Product" };
     view = new JComboBox(viewList);
@@ -73,26 +76,34 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     search.addKeyListener(this);
     search.setOpaque(false);
 
-    topHeader.setLayout(new GridLayout(1, 4, 10, 0));
+    deleteSelect = new JButton("Delete");
+    deleteSelect.setEnabled(false);
+    deleteSelect.addActionListener(this);
+    deleteButton.setOpaque(false);
+
     topHeader.add(view);
     topHeader.add(editButton);
     topHeader.add(deleteButton);
     topHeader.add(check);
+    topHeader.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2, true));
     topHeader.setOpaque(false);
 
-    lowHeader.setLayout(new GridLayout(1, 2, 10, 0));
     lowHeader.add(sort);
     lowHeader.add(search);
+    lowHeader.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2, true));
     lowHeader.setOpaque(false);
 
-    header.setLayout(new GridLayout(2, 1, 0, 10));
     header.add(topHeader);
     header.add(lowHeader);
     header.setBackground(gray);
 
+    footer.add(deleteSelect);
+    footer.setBackground(gray);
+
     this.setLayout(new BorderLayout());
     this.setBackground(new Color(255, 255, 255));
     this.add(header, BorderLayout.NORTH);
+    this.add(footer, BorderLayout.SOUTH);
   }
 
   @Override
@@ -115,16 +126,41 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
         default:
           break;
       }
-    }
+    } else if (e.getSource() == sort) {
+      switch (sort.getSelectedIndex()) {
+        case 0:
+          System.out.println(sort.getSelectedItem());
+          break;
 
-    if (e.getSource() == deleteButton) {
-      System.out.println("Delete");
+        case 1:
+          System.out.println(sort.getSelectedItem());
+          break;
+
+        default:
+          break;
+      }
+    } else if (e.getSource() == deleteButton) {
       check.setEnabled(true);
+      System.out.println("Delete");
+      
+      if (!deleteSelect.isEnabled() && check.isSelected()) {
+        deleteSelect.setEnabled(!deleteSelect.isEnabled());
+      }
+
     } else if (e.getSource() == editButton) {
-      System.out.println("Edit");
       check.setEnabled(false);
+      System.out.println("Edit");
+      
+      if (deleteSelect.isEnabled()) {
+        deleteSelect.setEnabled(!deleteSelect.isEnabled());
+      }
+
     } else if (e.getSource() == check) {
+      deleteSelect.setEnabled(check.isSelected());
       System.out.println(check.isSelected());
+
+    } else if (e.getSource() == deleteSelect) {
+      System.out.println(deleteSelect.getText());
     }
   }
 
