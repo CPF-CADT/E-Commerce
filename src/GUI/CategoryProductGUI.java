@@ -1,103 +1,251 @@
-package GUI;
-
 import Database.MySQLConnection;
+import utils.Category;
+import utils.Product;
+
 import java.awt.*;
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class CategoryProductGUI {
+    private static DefaultListModel<String> categoryListModel;
+    private static DefaultListModel<String> productListModel;
+    private static JList<String> categoryList;
+    private static JList<String> productList;
+    private static JTextArea productDetailsArea;
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
 
-    private static void createGUI() {
+    public static void createGUI() {
         JFrame frame = new JFrame("E-Commerce System");
-        frame.setSize(600, 400);
+        frame.setSize(800, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
+        frame.setLayout(new BorderLayout(10, 10));
 
-        JLabel titleLabel = new JLabel("Select a Category", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        frame.add(titleLabel, BorderLayout.NORTH);
+        // Title panel
+        JPanel titlePanel = new JPanel();
+        JLabel titleLabel = new JLabel("E-Commerce Product Browser", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titlePanel.add(titleLabel);
+        frame.add(titlePanel, BorderLayout.NORTH);
 
-        DefaultListModel<String> categoryListModel = new DefaultListModel<>();
-        JList<String> categoryList = new JList<>(categoryListModel);
-        frame.add(new JScrollPane(categoryList), BorderLayout.WEST);
-
-        DefaultListModel<String> productListModel = new DefaultListModel<>();
-        JList<String> productList = new JList<>(productListModel);
-        frame.add(new JScrollPane(productList), BorderLayout.CENTER);
-
-        JButton viewProductsButton = new JButton("View Products");
-        frame.add(viewProductsButton, BorderLayout.SOUTH);
-
+        // Main content panel with categories and products
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setDividerLocation(250);
+        
+        // Category panel
+        JPanel categoryPanel = new JPanel(new BorderLayout());
+        JLabel categoryLabel = new JLabel("Categories", SwingConstants.CENTER);
+        categoryLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        categoryPanel.add(categoryLabel, BorderLayout.NORTH);
+        
+        categoryListModel = new DefaultListModel<>();
+        categoryList = new JList<>(categoryListModel);
+        categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        categoryPanel.add(new JScrollPane(categoryList), BorderLayout.CENTER);
+        
+        // Product panel
+        JPanel productPanel = new JPanel(new BorderLayout());
+        JLabel productLabel = new JLabel("Products", SwingConstants.CENTER);
+        productLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        productPanel.add(productLabel, BorderLayout.NORTH);
+        
+        productListModel = new DefaultListModel<>();
+        productList = new JList<>(productListModel);
+        productList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        productPanel.add(new JScrollPane(productList), BorderLayout.CENTER);
+        
+        // Product details panel
+        JPanel detailsPanel = new JPanel(new BorderLayout());
+        JLabel detailsLabel = new JLabel("Product Details", SwingConstants.CENTER);
+        detailsLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        detailsPanel.add(detailsLabel, BorderLayout.NORTH);
+        
+        productDetailsArea = new JTextArea();
+        productDetailsArea.setEditable(false);
+        productDetailsArea.setLineWrap(true);
+        productDetailsArea.setWrapStyleWord(true);
+        detailsPanel.add(new JScrollPane(productDetailsArea), BorderLayout.CENTER);
+        
+        // Right side split pane for products and details
+        JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        rightSplitPane.setDividerLocation(250);
+        rightSplitPane.setTopComponent(productPanel);
+        rightSplitPane.setBottomComponent(detailsPanel);
+        
+        splitPane.setLeftComponent(categoryPanel);
+        splitPane.setRightComponent(rightSplitPane);
+        
+        frame.add(splitPane, BorderLayout.CENTER);
+        
+        // Button panel
+        JPanel buttonPanel = new JPanel();
+        JButton refreshButton = new JButton("Refresh Data");
+        buttonPanel.add(refreshButton);
+        
+        JButton exitButton = new JButton("Exit");
+        buttonPanel.add(exitButton);
+        
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+        
         // Load categories from database
-        List<String> categories = getCategories();
-        if (categories.isEmpty()) {
-            categoryListModel.addElement("No Categories Found");
-        } else {
-            for (String category : categories) {
-                categoryListModel.addElement(category);
-            }
-        }
-
-        // Button action: load products when a category is selected
-        viewProductsButton.addActionListener(e -> {
-            String selectedCategory = categoryList.getSelectedValue();
-            if (selectedCategory != null && !selectedCategory.equals("No Categories Found")) {
-                productListModel.clear();
-                List<String> products = getProducts(selectedCategory);
-                for (String product : products) {
-                    productListModel.addElement(product);
+        loadCategories();
+        
+        // Add event listeners
+        categoryList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    String selectedCategory = categoryList.getSelectedValue();
+                    if (selectedCategory != null) {
+                        loadProductsByCategory(selectedCategory);
+                    }
                 }
             }
         });
-
+        
+        productList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    String selectedProduct = productList.getSelectedValue();
+                    if (selectedProduct != null) {
+                        displayProductDetails(selectedProduct);
+                    }
+                }
+            }
+        });
+        
+        refreshButton.addActionListener(e -> loadCategories());
+        
+        exitButton.addActionListener(e -> {
+            MySQLConnection.closeConnection();
+            System.exit(0);
+        });
+        
         frame.setVisible(true);
     }
 
-    private static List<String> getCategories() {
-        List<String> categories = new ArrayList<>();
-        String sql = "SELECT name FROM Category";
-
-        Connection conn = MySQLConnection.getConnection();
-        if (conn == null) {
-            System.out.println("Database connection is null. Cannot fetch categories.");
-            return categories;
-        }
-
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                categories.add(rs.getString("name"));
+    private static void loadCategories() {
+        categoryListModel.clear();
+        productListModel.clear();
+        productDetailsArea.setText("");
+        
+        try {
+            // Get all categories from the database
+            String sql = "SELECT categoryId, name FROM Category";
+            try (var conn = MySQLConnection.getConnection();
+                 var stmt = conn.createStatement();
+                 var rs = stmt.executeQuery(sql)) {
+                
+                while (rs.next()) {
+                    categoryListModel.addElement(rs.getString("name"));
+                }
             }
-        } catch (SQLException e) {
-            System.out.println("Error fetching categories: " + e.getMessage());
+            
+            if (categoryListModel.isEmpty()) {
+                categoryListModel.addElement("No categories found");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, 
+                "Error loading categories: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
-        return categories;
     }
-
-    private static List<String> getProducts(String categoryName) {
-        List<String> products = new ArrayList<>();
-        String sql = "SELECT name FROM Product WHERE category = ?";
-
-        Connection conn = MySQLConnection.getConnection();
-        if (conn == null) {
-            System.out.println("Database connection is null. Cannot fetch products.");
-            return products;
-        }
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, categoryName);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                products.add(rs.getString("name"));
+    
+    private static void loadProductsByCategory(String categoryName) {
+        productListModel.clear();
+        productDetailsArea.setText("");
+        
+        try {
+            // First get the categoryId
+            String categoryIdQuery = "SELECT categoryId FROM Category WHERE name = ?";
+            String categoryId = null;
+            
+            try (var conn = MySQLConnection.getConnection();
+                 var stmt = conn.prepareStatement(categoryIdQuery)) {
+                
+                stmt.setString(1, categoryName);
+                var rs = stmt.executeQuery();
+                
+                if (rs.next()) {
+                    categoryId = rs.getString("categoryId");
+                }
             }
-        } catch (SQLException e) {
-            System.out.println("Error fetching products: " + e.getMessage());
+            
+            if (categoryId != null) {
+                // Now get all products for this category
+                List<Product> products = Category.getProductsByCategory(categoryId);
+                
+                if (products.isEmpty()) {
+                    productListModel.addElement("No products found");
+                } else {
+                    for (Product product : products) {
+                        productListModel.addElement(product.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, 
+                "Error loading products: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
-        return products;
+    }
+    
+    private static void displayProductDetails(String productName) {
+        try {
+            // Get the selected category name
+            String categoryName = categoryList.getSelectedValue();
+            if (categoryName == null) return;
+            
+            // Get categoryId
+            String categoryIdQuery = "SELECT categoryId FROM Category WHERE name = ?";
+            String categoryId = null;
+            
+            try (var conn = MySQLConnection.getConnection();
+                 var stmt = conn.prepareStatement(categoryIdQuery)) {
+                
+                stmt.setString(1, categoryName);
+                var rs = stmt.executeQuery();
+                
+                if (rs.next()) {
+                    categoryId = rs.getString("categoryId");
+                }
+            }
+            
+            if (categoryId != null) {
+                // Get product details
+                String productQuery = "SELECT * FROM Product WHERE name = ? AND categoryId = ?";
+                
+                try (var conn = MySQLConnection.getConnection();
+                     var stmt = conn.prepareStatement(productQuery)) {
+                    
+                    stmt.setString(1, productName);
+                    stmt.setString(2, categoryId);
+                    var rs = stmt.executeQuery();
+                    
+                    if (rs.next()) {
+                        StringBuilder details = new StringBuilder();
+                        details.append("Product ID: ").append(rs.getString("productId")).append("\n\n");
+                        details.append("Name: ").append(rs.getString("name")).append("\n\n");
+                        details.append("Price: $").append(rs.getDouble("price")).append("\n\n");
+                        details.append("Stock: ").append(rs.getInt("stock")).append("\n\n");
+                        details.append("Description: ").append(rs.getString("description")).append("\n");
+                        
+                        productDetailsArea.setText(details.toString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, 
+                "Error displaying product details: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
