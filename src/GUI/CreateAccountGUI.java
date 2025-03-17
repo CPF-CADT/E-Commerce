@@ -1,13 +1,11 @@
 package GUI;
 
-import javax.swing.*;
+import Database.MySQLConnection;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import Database.MySQLConnection;
+import javax.swing.*;
 
 public class CreateAccountGUI {
 
@@ -40,11 +38,6 @@ public class CreateAccountGUI {
                 JTextField lastNameField = createTextField();
                 JTextField emailField = createTextField();
                 JPasswordField passwordField = createPasswordField();
-                JTextField streetField = createTextField();
-                JTextField cityField = createTextField();
-                JTextField stateField = createTextField();
-                JTextField postalCodeField = createTextField();
-                JTextField countryField = createTextField();
                 JTextField phoneNumberField = createTextField();
                 JTextField dateOfBirthField = createTextField(); 
 
@@ -56,11 +49,6 @@ public class CreateAccountGUI {
                 addLabelAndField("Last Name:", lastNameField, formPanel, gbc, 1);
                 addLabelAndField("Email:", emailField, formPanel, gbc, 2);
                 addLabelAndField("Password:", passwordField, formPanel, gbc, 3);
-                addLabelAndField("Street:", streetField, formPanel, gbc, 4);
-                addLabelAndField("City:", cityField, formPanel, gbc, 5);
-                addLabelAndField("State:", stateField, formPanel, gbc, 6);
-                addLabelAndField("Postal Code:", postalCodeField, formPanel, gbc, 7);
-                addLabelAndField("Country:", countryField, formPanel, gbc, 8);
                 addLabelAndField("Phone Number:", phoneNumberField, formPanel, gbc, 9);
                 addLabelAndField("Date of Birth (YYYY-MM-DD):", dateOfBirthField, formPanel, gbc, 10);
 
@@ -87,16 +75,10 @@ public class CreateAccountGUI {
                     String lastName = lastNameField.getText().trim();
                     String email = emailField.getText().trim();
                     String password = new String(passwordField.getPassword()).trim();
-                    String street = streetField.getText().trim();
-                    String city = cityField.getText().trim();
-                    String state = stateField.getText().trim();
-                    String postalCode = postalCodeField.getText().trim();
-                    String country = countryField.getText().trim();
                     String phoneNumber = phoneNumberField.getText().trim();
                     String dateOfBirth = dateOfBirthField.getText().trim();
 
-                    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() ||
-                            street.isEmpty() || city.isEmpty() || postalCode.isEmpty() || country.isEmpty() || dateOfBirth.isEmpty()) {
+                    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || dateOfBirth.isEmpty()) {
                         JOptionPane.showMessageDialog(frame, "Please fill in all required fields!", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -111,18 +93,13 @@ public class CreateAccountGUI {
                         String userId = generateUserId(conn);
                         String encryptedPassword = hashPassword(password);
 
-                        String sqlUser = "INSERT INTO User (userId, firstname, lastname, email, password, street, city, state, postalCode, country, phoneNumber, dateOfBirth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        String sqlUser = "INSERT INTO User (userId, firstname, lastname, email, password, phoneNumber, dateOfBirth) VALUES (?, ?, ?, ?, ?, ?, ?)";
                         PreparedStatement stmtUser = conn.prepareStatement(sqlUser);
                         stmtUser.setString(1, userId);
                         stmtUser.setString(2, firstName);
                         stmtUser.setString(3, lastName);
                         stmtUser.setString(4, email);
                         stmtUser.setString(5, encryptedPassword);
-                        stmtUser.setString(6, street);
-                        stmtUser.setString(7, city);
-                        stmtUser.setString(8, state);
-                        stmtUser.setString(9, postalCode);
-                        stmtUser.setString(10, country);
                         stmtUser.setString(11, phoneNumber);
                         stmtUser.setString(12, dateOfBirth);
                         stmtUser.executeUpdate();

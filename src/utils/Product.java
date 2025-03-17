@@ -11,7 +11,9 @@ public class Product {
     protected int stock;
     protected String categoryID;
     protected String description;
-    protected static HashMap<String, Product> productsById = new HashMap<>();
+    protected static HashMap<Integer, Product> productsById = new HashMap<>();
+
+    
 
     private static final String URL = "jdbc:mysql://localhost:3306/e_commerce";
     private static final String USER = "root";
@@ -54,7 +56,7 @@ public class Product {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Product(
-                        rs.getString("productId"),
+                        // rs.getInt("productId"),
                         rs.getString("name"),
                         rs.getDouble("price"),
                         rs.getInt("stock"),
