@@ -25,6 +25,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       new ImageIcon("src/GUI/Resources/selected.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
   
   private static Color gray = new Color(121, 133, 165);
+ 
 
   JComboBox view;
   JComboBox sort;
@@ -32,6 +33,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   JRadioButton editButton;
   JCheckBox check;
   JTextField search;
+
+  
 
   JButton deleteSelect; 
 
@@ -43,6 +46,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
     JPanel main = new JPanel(new GridLayout(0, 1, 0, 10));
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+    
 
     /* -------------------- Upper Header -------------------- */
     
