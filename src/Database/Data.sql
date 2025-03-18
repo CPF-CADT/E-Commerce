@@ -1,7 +1,7 @@
 USE e_commerce;
 
 -- Insert User Data (Staff and Customers)
-INSERT INTO User (userId, firstname, lastname, email, password, street, city, state, postalCode, country, phoneNumber, dateOfBirth) 
+INSERT IGNORE INTO User (userId, firstname, lastname, email, password, street, city, state, postalCode, country, phoneNumber, dateOfBirth) 
 VALUES
 ('S001', 'John', 'Doe', 'john.doe@example.com', 'password123', '123 Main St', 'New York', 'NY', '10001', 'USA', '555-0101', '1985-05-01'),
 ('S002', 'Jane', 'Smith', 'jane.smith@example.com', 'password123', '456 Oak St', 'Los Angeles', 'CA', '90001', 'USA', '555-0102', '1990-08-12'),
@@ -45,14 +45,25 @@ VALUES
 INSERT INTO Category (categoryId, name)
 VALUES
 ('CAT01', 'Electronics'),
-('CAT02', 'Accessories');
+('CAT02', 'Accessories'),
+('CAT03', 'Home Appliances'),
+('CAT04', 'Furniture'),
+('CAT05', 'Clothing'),
+('CAT06', 'Toys');
 
 -- Insert Products
-INSERT INTO Product (productId, name, price, stock, categoryId, description)
+INSERT IGNORE INTO Product (productId, name, price, stock, categoryId, description)
 VALUES
 ('P001', 'Laptop', 1200.00, 50, 'CAT01', 'High-performance laptop with 16GB RAM and 512GB SSD'),
 ('P002', 'Smartphone', 799.99, 100, 'CAT01', 'Latest model smartphone with a 48MP camera'),
-('P003', 'Headphones', 199.99, 150, 'CAT02', 'Noise-cancelling over-ear headphones');
+('P003', 'Headphones', 199.99, 150, 'CAT02', 'Noise-cancelling over-ear headphones'),
+('P004', 'Coffee Maker', 90.00, 60, 'CAT03', 'Automatic coffee maker with a built-in grinder'),
+('P005', 'Refrigerator', 800.00, 30, 'CAT03', 'Energy-efficient refrigerator with a large capacity'),
+('P006', 'Sofa', 700.00, 20, 'CAT04', 'Comfortable and stylish 3-seater sofa'),
+('P007', 'Dining Table', 350.00, 15, 'CAT04', 'Wooden dining table that seats six'),
+('P008', 'T-Shirt', 25.00, 200, 'CAT05', 'Cotton t-shirt available in multiple colors'),
+('P009', 'Jeans', 45.00, 150, 'CAT05', 'Classic fit jeans with a durable fabric'),
+('P010', 'Action Figure', 19.99, 300, 'CAT06', 'Collectible superhero action figure with accessories');
 
 -- Insert Reviews
 INSERT INTO Review (reviewId, productId, userId, rating, comment)
@@ -79,4 +90,7 @@ VALUES
 INSERT INTO Shipping (shippingId, orderId, shippingDate, deliveryDate, carrier, trackingNumber, status, shippingAddress)
 VALUES
 ('SH001', 'O001', '2025-03-02', '2025-03-05', 'FedEx', 'TRACK12345', 'IN TRANSIT', '303 Birch St, San Francisco, CA, 94101');
+
+
+
 

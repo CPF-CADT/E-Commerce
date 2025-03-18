@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.SQLSyntaxErrorException;
+import java.sql.Statement;
 public class MySQLConnection {
 
     private static Connection connection = null;
@@ -75,15 +75,26 @@ public class MySQLConnection {
     }
 
     // Close the connection
+    // public static void closeConnection() {
+    //     if (connection != null) {
+    //         try {
+    //             connection.close();
+    //             connection = null;
+    //             System.out.println("Connection closed.");
+    //         } catch (SQLException e) {
+    //             System.out.println("Failed to close the connection!");
+              
+    //         }
+    //     }
+    // }
+
     public static void closeConnection() {
         if (connection != null) {
             try {
                 connection.close();
-                connection = null;
-                System.out.println("Connection closed.");
+                System.out.println("Database connection closed.");
             } catch (SQLException e) {
-                System.out.println("Failed to close the connection!");
-              
+                System.out.println("Error closing database connection: " + e.getMessage());
             }
         }
     }

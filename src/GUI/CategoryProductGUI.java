@@ -1,10 +1,13 @@
+package GUI;
+
 import Database.MySQLConnection;
-import utils.Category;
 import utils.Product;
+import utils.Category;
 
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
+import java.sql.SQLException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -149,7 +152,7 @@ public class CategoryProductGUI {
             if (categoryListModel.isEmpty()) {
                 categoryListModel.addElement("No categories found");
             }
-        } catch (Exception e) {
+        } catch (SQLException | NullPointerException e) {
             JOptionPane.showMessageDialog(null, 
                 "Error loading categories: " + e.getMessage(), 
                 "Database Error", 
@@ -157,19 +160,19 @@ public class CategoryProductGUI {
         }
     }
     
-    private static void loadProductsByCategory(String categoryName) {
+    private static void loadProductsByCategory(String name) {
         productListModel.clear();
         productDetailsArea.setText("");
         
         try {
             // First get the categoryId
-            String categoryIdQuery = "SELECT categoryId FROM Category WHERE name = ?";
+            String categoryIdQuery = "SELECT * FROM Category WHERE name = ?";
             String categoryId = null;
             
             try (var conn = MySQLConnection.getConnection();
                  var stmt = conn.prepareStatement(categoryIdQuery)) {
                 
-                stmt.setString(1, categoryName);
+                stmt.setString(1, name);
                 var rs = stmt.executeQuery();
                 
                 if (rs.next()) {
@@ -189,13 +192,53 @@ public class CategoryProductGUI {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException | NullPointerException e) {
             JOptionPane.showMessageDialog(null, 
                 "Error loading products: " + e.getMessage(), 
                 "Database Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    // private static void loadProductsByCategory(String name) {
+    //     productListModel.clear();
+    //     productDetailsArea.setText("");
+        
+    //     try {
+    //         // First get the categoryId
+    //         String categoryIdQuery = "SELECT categoryId FROM Category WHERE name = ?";
+    //         String categoryId = null;
+            
+    //         try (var conn = MySQLConnection.getConnection();
+    //              var stmt = conn.prepareStatement(categoryIdQuery)) {
+                
+    //             stmt.setString(1, name);
+    //             var rs = stmt.executeQuery();
+                
+    //             if (rs.next()) {
+    //                 categoryId = rs.getString("categoryId");
+    //             }
+    //         }
+            
+    //         if (categoryId != null) {
+    //             // Now get all products for this category
+    //             List<Product> products = Product.getProductsByCategory(categoryId); // Updated to use the new method
+                
+    //             if (products.isEmpty()) {
+    //                 productListModel.addElement("No products found");
+    //             } else {
+    //                 for (Product product : products) {
+    //                     productListModel.addElement(product.getName());
+    //                 }
+    //             }
+    //         }
+    //     } catch (SQLException | NullPointerException e) {
+    //         JOptionPane.showMessageDialog(null, 
+    //             "Error loading products: " + e.getMessage(), 
+    //             "Database Error", 
+    //             JOptionPane.ERROR_MESSAGE);
+    //     }
+    // }
     
     private static void displayProductDetails(String productName) {
         try {
@@ -241,7 +284,7 @@ public class CategoryProductGUI {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException | NullPointerException e) {
             JOptionPane.showMessageDialog(null, 
                 "Error displaying product details: " + e.getMessage(), 
                 "Database Error", 
