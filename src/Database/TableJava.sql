@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS e-commerce;
-USE e-commerce;
+CREATE DATABASE IF NOT EXISTS e_commerce;
+USE e_commerce;
 
 CREATE TABLE IF NOT EXISTS User (
     userId VARCHAR(10) PRIMARY KEY NOT NULL,
@@ -36,13 +36,21 @@ CREATE TABLE IF NOT EXISTS VIPCustomer (
     FOREIGN KEY (customerId) REFERENCES Customer(customerId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+create table if not exists Category(
+    categoryId varchar(10) primary key not null,
+    name varchar(255) not null
+);
+
+
+
 CREATE TABLE IF NOT EXISTS Product (
     productId VARCHAR(20) PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
     stock INT NOT NULL CHECK (stock >= 0),
-    category VARCHAR(255),
-    description TEXT
+    categoryId VARCHAR(255),
+    description TEXT,
+    FOREIGN KEY (categoryId) REFERENCES Category(categoryId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Review (
@@ -55,15 +63,6 @@ CREATE TABLE IF NOT EXISTS Review (
     FOREIGN KEY (userId) REFERENCES User(userId) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS `Order` (
-    orderId VARCHAR(10) PRIMARY KEY NOT NULL,
-    cartId VARCHAR(10) NOT NULL,
-    orderDate DATE NOT NULL,
-    paymentDate DATE DEFAULT CURRENT_DATE,
-    paymentMethod VARCHAR(50) NOT NULL,
-    status ENUM('PENDING', 'COMPLETED', 'CANCELLED', 'SHIPPED') DEFAULT 'PENDING',
-    FOREIGN KEY (cartId) REFERENCES Cart(cartId) ON DELETE CASCADE ON UPDATE CASCADE
-);
 
 CREATE TABLE IF NOT EXISTS Cart (
     cartId VARCHAR(10) NOT NULL,
@@ -74,6 +73,15 @@ CREATE TABLE IF NOT EXISTS Cart (
     FOREIGN KEY (productId) REFERENCES Product(productId) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS `Order` (
+    orderId VARCHAR(10) PRIMARY KEY NOT NULL,
+    cartId VARCHAR(10) NOT NULL,
+    orderDate DATE NOT NULL,
+    paymentDate DATE DEFAULT CURRENT_DATE,
+    paymentMethod VARCHAR(50) NOT NULL,
+    status ENUM('PENDING', 'COMPLETED', 'CANCELLED', 'SHIPPED') DEFAULT 'PENDING',
+    FOREIGN KEY (cartId) REFERENCES Cart(cartId) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS Shipping (
     shippingId VARCHAR(10) PRIMARY KEY NOT NULL,

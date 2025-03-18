@@ -1,19 +1,24 @@
 package utils;
 
+import Database.MySQLConnection;
 import User.Staff;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Product {
-    private String productId;  // Changed to String to match the database
-    protected String name;
-    protected double price;
-    protected int stock;
-    protected String categoryID;
-    protected String description;
-    protected static HashMap<Integer, Product> productsById = new HashMap<>();
-
+    private final String productId;  // Changed to String to match the database
+    public String name;
+    public double price;
+    public int stock;
+    public String categoryID;
+    public String description;
+    public static HashMap<String, Product> productsById = new HashMap<>();
     
+    public String getName() {
+        return name;
+    }
 
     private static final String URL = "jdbc:mysql://localhost:3306/e_commerce";
     private static final String USER = "root";
@@ -49,6 +54,53 @@ public class Product {
         }
     }
 
+    // public static List<Product> getProductsByCategory(String categoryId) {
+    //     List<Product> products = new ArrayList<>();
+    //     String sql = "SELECT * FROM Product WHERE categoryId = ?";
+            
+    //     try (Connection conn = MySQLConnection.getConnection(); // Use MySQLConnection instead of connect()
+    //          PreparedStatement stmt = conn.prepareStatement(sql)) {
+    //         stmt.setString(1, categoryId);
+    //         ResultSet rs = stmt.executeQuery();
+            
+    //         while (rs.next()) {
+    //             Product product = new Product(
+    //                     rs.getString("productId"),
+    //                     rs.getString("name"),
+    //                     rs.getDouble("price"),
+    //                     rs.getInt("stock"),
+    //                     rs.getString("categoryId"),
+    //                     rs.getString("description")
+    //             );
+    //             products.add(product);
+    //         }
+    //     } catch (SQLException e) {
+    //         e.printStackTrace(); // Add this to see the full stack trace
+    //         System.out.println("Error retrieving products by category: " + e.getMessage());
+    //     }
+        
+    //     return products;
+    // }
+
+    
+    public static List<Product> getProductsByCategory(String categoryId) {
+        List<Product> products = new ArrayList<>();
+        String query = "SELECT * FROM Product WHERE categoryId = ?";
+
+        try (var conn = MySQLConnection.getConnection();
+             var stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, categoryId);
+            var rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Product product = new Product(
+                    rs.getString("productId"),
+                    rs.getString("name"),
+                    rs.getDouble("price"),
+                    rs.getInt("stock"),
+                    rs.getString("categoryId"),
+                    rs.getString("description")
     public static Product getProductById(String id) {
         String sql = "SELECT * FROM Product WHERE productId = ?";
         try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -63,12 +115,63 @@ public class Product {
                         rs.getString("categoryId"),
                         rs.getString("description")
                 );
+                products.add(product);
             }
         } catch (SQLException e) {
-            System.out.println("Error retrieving product: " + e.getMessage());
+            e.printStackTrace();
         }
-        return null;
+
+        return products;
     }
+
+    // public static List<Product> getProductsByCategory(String name) {
+    //     List<Product> products = new ArrayList<>();
+    //     String sql = "SELECT * FROM Product WHERE categoryId = ?";
+            
+    //     try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    //         stmt.setString(1, name);
+    //         ResultSet rs = stmt.executeQuery();
+            
+    //         while (rs.next()) {
+    //             Product product = new Product(
+    //                     rs.getString("productId"),
+    //                     rs.getString("name"),
+    //                     rs.getDouble("price"),
+    //                     rs.getInt("stock"),
+    //                     rs.getString("categoryId"),
+    //                     rs.getString("description")
+    //             );
+    //             products.add(product);
+    //         }
+    //     } catch (SQLException e) {
+    //         System.out.println("Error retrieving products by category: " + e.getMessage());
+    //     }
+        
+    //     return products;
+    // }
+
+    // public static Product getProductById(String id) {
+    //     String sql = "SELECT * FROM Product WHERE productId = ?";
+    //     try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    //         stmt.setString(1, id);
+    //         ResultSet rs = stmt.executeQuery();
+    //         if (rs.next()) {
+    //             return new Product(
+    //                     rs.getString("productId"),
+    //                     rs.getString("name"),
+    //                     rs.getDouble("price"),
+    //                     rs.getInt("stock"),
+    //                     rs.getString("categoryId"),
+    //                     rs.getString("description")
+    //             );
+    //         }
+    //     } catch (SQLException e) {
+    //         System.out.println("Error retrieving product: " + e.getMessage());
+    //     }
+    //     return null;
+    // }
+    
+    
 
     public void updateStock(int newStock, Staff admin) {
         if (admin != null) {
@@ -94,7 +197,7 @@ public class Product {
             try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, id);
                 stmt.executeUpdate();
-                productsById.remove(id);
+                productsById.remove(Integer.valueOf(id));
                 System.out.println("Product deleted successfully.");
             } catch (SQLException e) {
                 System.out.println("Error deleting product: " + e.getMessage());
@@ -104,7 +207,7 @@ public class Product {
         }
     }
 
-    public int getStock() {
+    public int fetchStockFromDatabase() {
         String sql = "SELECT stock FROM Product WHERE productId = ?";
         try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, this.productId);

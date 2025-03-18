@@ -50,11 +50,10 @@ public class LoginGUI extends JFrame {
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
-
             boolean loginSuccess = validateLogin(email, password);
-
             if (loginSuccess) {
                 JOptionPane.showMessageDialog(this, " Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, " Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
@@ -88,7 +87,7 @@ public class LoginGUI extends JFrame {
             if (result.next()) {
                 String storedHashedPassword = result.getString("password");
                 System.out.println("🔍 Checking password for user: " + email);
-
+                AdminGUI.main(null);
                 // Compare hashed password using BCrypt
                 if (Encryption.verifyPassword(storedHashedPassword, password)) {
                     System.out.println("Login successful!");
