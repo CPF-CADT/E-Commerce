@@ -19,6 +19,7 @@ public class CategoryProductGUI {
     private static JTextArea productDetailsArea;
     
     public static void main(String[] args) {
+        System.out.println(args[0]);
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
 

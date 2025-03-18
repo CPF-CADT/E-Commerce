@@ -1,7 +1,6 @@
 package GUI;
 
 import Database.MySQLConnection;
-import Testing.CusGUI;
 import java.awt.*;
 import java.sql.*;
 import javax.swing.*;
@@ -103,8 +102,7 @@ public class LoginGUI extends JFrame {
                     } else if (userId.startsWith("C")) {
                         // User is customer
                         System.out.println("User is customer.");
-                     
-                       CusGUI.main(null); 
+                       CategoryProductGUI.main(new String[]{userId}); 
                     } else {
                         System.out.println("Unknown user type.");
                     }
