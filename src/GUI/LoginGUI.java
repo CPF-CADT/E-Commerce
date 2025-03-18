@@ -52,10 +52,10 @@ public class LoginGUI extends JFrame {
             String password = new String(passwordField.getPassword());
             boolean loginSuccess = validateLogin(email, password);
             if (loginSuccess) {
-                JOptionPane.showMessageDialog(this, " Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();
+                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();  // Close login window
             } else {
-                JOptionPane.showMessageDialog(this, " Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -67,7 +67,7 @@ public class LoginGUI extends JFrame {
         createAccountButton.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
         createAccountButton.addActionListener(e -> {
             dispose();
-            new CreateAccountGUI();
+            new CreateAccountGUI();  // Redirect to create account screen
         });
         panel.add(createAccountButton);
 
@@ -77,7 +77,8 @@ public class LoginGUI extends JFrame {
 
     // Validate login credentials
     private boolean validateLogin(String email, String password) {
-        String query = "SELECT password FROM User WHERE email = ?";
+        // Query to fetch user credentials (userId) and role (staff or customer)
+        String query = "SELECT userId, password FROM User WHERE email = ?";
         try (Connection conn = MySQLConnection.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(query)) {
 
@@ -85,26 +86,43 @@ public class LoginGUI extends JFrame {
             ResultSet result = preparedStatement.executeQuery();
 
             if (result.next()) {
+                // Get the stored password and userId
                 String storedHashedPassword = result.getString("password");
-                System.out.println("🔍 Checking password for user: " + email);
-                AdminGUI.main(null);
-                // Compare hashed password using BCrypt
+                String userId = result.getString("userId");
+
+                // Check if the entered password matches the stored password
                 if (Encryption.verifyPassword(storedHashedPassword, password)) {
                     System.out.println("Login successful!");
-                    return true;
+
+                    if (userId.startsWith("S")) {
+                      
+                        System.out.println("User is staff.");
+                        
+                        AdminGUI.main(null);  
+                    } else if (userId.startsWith("C")) {
+                        // User is customer
+                        System.out.println("User is customer.");
+                     
+                        CategoryProductGUI.main(null); 
+                    } else {
+                        System.out.println("Unknown user type.");
+                    }
+
+                    return true;  // Login successful
                 } else {
-                    System.out.println(" Incorrect password!");
+                    System.out.println("Incorrect password!");
                 }
             } else {
-                System.out.println(" No user found with email: " + email);
+                System.out.println("No user found with email: " + email);
             }
+
         } catch (SQLException e) {
-            System.out.println(" Database error: " + e.getMessage());
+            System.out.println("Database error: " + e.getMessage());
         }
-        return false;
+        return false;  // Login failed
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginGUI::new);
+        SwingUtilities.invokeLater(LoginGUI::new);  // Run the login GUI on the Event Dispatch Thread
     }
 }

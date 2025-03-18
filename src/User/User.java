@@ -1,8 +1,7 @@
 package User;
+import Exception.CastToUserHandleException;
 import java.util.Date;
 import java.util.HashMap;
-
-import Exception.CastToUserHandleException;
 
 public abstract class User implements Authentication {
     private static int counter = 0;

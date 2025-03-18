@@ -1,204 +1,128 @@
 package GUI;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.*;
 import Database.MySQLConnection;
+import java.awt.*;
+import java.sql.*;
+import java.util.HashMap;
+import javax.swing.*;
+import utils.Encryption;
 
 public class CreateAccountGUI {
+    private static final HashMap<String, String> userTypes = new HashMap<>();
+    static {
+        userTypes.put("Customer", "C");
+        userTypes.put("Staff", "S");
+    }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JFrame frame = new JFrame("Create Account");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(500, 700);
-                frame.setLayout(new BorderLayout());
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Create Account");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(500, 750);
+            frame.setLayout(new BorderLayout());
+            frame.getContentPane().setBackground(new Color(255, 192, 203));
 
-                // Set background color to pink
-                frame.getContentPane().setBackground(new Color(255, 192, 203)); // Light pink
+            JLabel titleLabel = new JLabel("Create Account", SwingConstants.CENTER);
+            titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+            frame.add(titleLabel, BorderLayout.NORTH);
 
-                // Title Label
-                JLabel titleLabel = new JLabel("Create Account", SwingConstants.CENTER);
-                titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
-                titleLabel.setForeground(new Color(50, 50, 50)); 
-                frame.add(titleLabel, BorderLayout.NORTH);
+            JPanel formPanel = new JPanel(new GridBagLayout());
+            formPanel.setBackground(new Color(255, 192, 203));
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
 
-                // Panel for the form
-                JPanel formPanel = new JPanel(new GridBagLayout());
-                formPanel.setBackground(new Color(255, 192, 203)); // Light pink
-                GridBagConstraints gbc = new GridBagConstraints();
-                gbc.insets = new Insets(5, 5, 5, 5); // Reduce spacing
-
-                // Fields
-                JTextField firstNameField = createTextField();
-                JTextField lastNameField = createTextField();
-                JTextField emailField = createTextField();
-                JPasswordField passwordField = createPasswordField();
-                JTextField streetField = createTextField();
-                JTextField cityField = createTextField();
-                JTextField stateField = createTextField();
-                JTextField postalCodeField = createTextField();
-                JTextField countryField = createTextField();
-                JTextField phoneNumberField = createTextField();
-                JTextField dateOfBirthField = createTextField(); 
-
-                JButton submitButton = new JButton("Create Account");
-                styleButton(submitButton);
-
-                // Adding Fields to Form Panel
-                addLabelAndField("First Name:", firstNameField, formPanel, gbc, 0);
-                addLabelAndField("Last Name:", lastNameField, formPanel, gbc, 1);
-                addLabelAndField("Email:", emailField, formPanel, gbc, 2);
-                addLabelAndField("Password:", passwordField, formPanel, gbc, 3);
-                addLabelAndField("Street:", streetField, formPanel, gbc, 4);
-                addLabelAndField("City:", cityField, formPanel, gbc, 5);
-                addLabelAndField("State:", stateField, formPanel, gbc, 6);
-                addLabelAndField("Postal Code:", postalCodeField, formPanel, gbc, 7);
-                addLabelAndField("Country:", countryField, formPanel, gbc, 8);
-                addLabelAndField("Phone Number:", phoneNumberField, formPanel, gbc, 9);
-                addLabelAndField("Date of Birth (YYYY-MM-DD):", dateOfBirthField, formPanel, gbc, 10);
-
-                // Submit Button
-                gbc.gridx = 0;
-                gbc.gridy = 11;
-                gbc.gridwidth = 2;
-                gbc.anchor = GridBagConstraints.CENTER;
-                formPanel.add(submitButton, gbc);
-
-                frame.add(formPanel, BorderLayout.CENTER);
-
-                // Login Button
-                JPanel loginPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                loginPanel.setBackground(new Color(255, 192, 203)); 
-                JButton loginButton = new JButton("Already have an account? Login");
-                styleLoginButton(loginButton, frame);
-                loginPanel.add(loginButton);
-                frame.add(loginPanel, BorderLayout.SOUTH);
-
-                // Submit Button Action
-                submitButton.addActionListener(e -> {
-                    String firstName = firstNameField.getText().trim();
-                    String lastName = lastNameField.getText().trim();
-                    String email = emailField.getText().trim();
-                    String password = new String(passwordField.getPassword()).trim();
-                    String street = streetField.getText().trim();
-                    String city = cityField.getText().trim();
-                    String state = stateField.getText().trim();
-                    String postalCode = postalCodeField.getText().trim();
-                    String country = countryField.getText().trim();
-                    String phoneNumber = phoneNumberField.getText().trim();
-                    String dateOfBirth = dateOfBirthField.getText().trim();
-
-                    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() ||
-                            street.isEmpty() || city.isEmpty() || postalCode.isEmpty() || country.isEmpty() || dateOfBirth.isEmpty()) {
-                        JOptionPane.showMessageDialog(frame, "Please fill in all required fields!", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (!dateOfBirth.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                        JOptionPane.showMessageDialog(frame, "Invalid Date Format! Use YYYY-MM-DD", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    try {
-                        Connection conn = MySQLConnection.getConnection();
-                        String userId = generateUserId(conn);
-                        String encryptedPassword = hashPassword(password);
-
-                        String sqlUser = "INSERT INTO User (userId, firstname, lastname, email, password, street, city, state, postalCode, country, phoneNumber, dateOfBirth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        PreparedStatement stmtUser = conn.prepareStatement(sqlUser);
-                        stmtUser.setString(1, userId);
-                        stmtUser.setString(2, firstName);
-                        stmtUser.setString(3, lastName);
-                        stmtUser.setString(4, email);
-                        stmtUser.setString(5, encryptedPassword);
-                        stmtUser.setString(6, street);
-                        stmtUser.setString(7, city);
-                        stmtUser.setString(8, state);
-                        stmtUser.setString(9, postalCode);
-                        stmtUser.setString(10, country);
-                        stmtUser.setString(11, phoneNumber);
-                        stmtUser.setString(12, dateOfBirth);
-                        stmtUser.executeUpdate();
-
-                        JOptionPane.showMessageDialog(frame, "Account Created Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        conn.close();
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                });
-
-                frame.setVisible(true);
-            }
+            JComboBox<String> userTypeComboBox = new JComboBox<>(userTypes.keySet().toArray(new String[0]));
+            JTextField firstNameField = new JTextField(15);
+            JTextField lastNameField = new JTextField(15);
+            JTextField emailField = new JTextField(15);
+            JPasswordField passwordField = new JPasswordField(15);
+            JTextField addressField = new JTextField(15);
+            JTextField cityField = new JTextField(15);
+            JTextField stateField = new JTextField(15);
+            JTextField postalCodeField = new JTextField(15);
+            JTextField countryField = new JTextField(15);
+            JTextField phoneField = new JTextField(15);
+            JTextField dateOfBirthField = new JTextField(15);
+            JTextField positionField = new JTextField(15);
+            
+            addLabelAndField("User Type:", userTypeComboBox, formPanel, gbc, 0);
+            addLabelAndField("First Name:", firstNameField, formPanel, gbc, 1);
+            addLabelAndField("Last Name:", lastNameField, formPanel, gbc, 2);
+            addLabelAndField("Email:", emailField, formPanel, gbc, 3);
+            addLabelAndField("Password:", passwordField, formPanel, gbc, 4);
+            addLabelAndField("Address:", addressField, formPanel, gbc, 5);
+            addLabelAndField("City:", cityField, formPanel, gbc, 6);
+            addLabelAndField("State:", stateField, formPanel, gbc, 7);
+            addLabelAndField("Postal Code:", postalCodeField, formPanel, gbc, 8);
+            addLabelAndField("Country:", countryField, formPanel, gbc, 9);
+            addLabelAndField("Phone Number:", phoneField, formPanel, gbc, 10);
+            addLabelAndField("Date of Birth:", dateOfBirthField, formPanel, gbc, 11);
+            addLabelAndField("Position (if Staff):", positionField, formPanel, gbc, 12);
+            positionField.setVisible(false);
+            
+            userTypeComboBox.addActionListener(e -> {
+                positionField.setVisible("Staff".equals(userTypeComboBox.getSelectedItem()));
+                frame.revalidate();
+            });
+            
+            JButton submitButton = new JButton("Create Account");
+            submitButton.addActionListener(e -> createAccount(frame, userTypeComboBox, firstNameField, lastNameField, emailField, passwordField, addressField, cityField, stateField, postalCodeField, countryField, phoneField, dateOfBirthField, positionField));
+            
+            gbc.gridy = 13;
+            formPanel.add(submitButton, gbc);
+            frame.add(formPanel, BorderLayout.CENTER);
+            frame.setVisible(true);
         });
     }
 
-    private static void addLabelAndField(String label, JTextField field, JPanel panel, GridBagConstraints gbc, int y) {
+    private static void addLabelAndField(String label, JComponent field, JPanel panel, GridBagConstraints gbc, int y) {
         gbc.gridx = 0;
         gbc.gridy = y;
-        gbc.anchor = GridBagConstraints.EAST;
         panel.add(new JLabel(label), gbc);
-
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         panel.add(field, gbc);
     }
 
-    private static JTextField createTextField() {
-        JTextField textField = new JTextField(15);
-        return textField;
-    }
+    private static void createAccount(JFrame frame, JComboBox<String> userTypeComboBox, JTextField firstNameField, JTextField lastNameField, JTextField emailField, JPasswordField passwordField, JTextField addressField, JTextField cityField, JTextField stateField, JTextField postalCodeField, JTextField countryField, JTextField phoneField, JTextField dateOfBirthField, JTextField positionField) {
+        String userType = (String) userTypeComboBox.getSelectedItem();
+        String prefix = userTypes.get(userType);
 
-    private static JPasswordField createPasswordField() {
-        return new JPasswordField(15);
-    }
+        String userId = prefix + "000_" + System.currentTimeMillis() % 10000;
+        String password = Encryption.hashPassword(new String(passwordField.getPassword()).trim());
 
-    private static void styleButton(JButton button) {
-        button.setBackground(new Color(0, 122, 204));
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-    }
+        try (Connection conn = MySQLConnection.getConnection()) {
+            String sqlUser = "INSERT INTO User (userId, firstname, lastname, email, password, street, city, state, postalCode, country, phoneNumber, dateOfBirth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmtUser = conn.prepareStatement(sqlUser);
+            stmtUser.setString(1, userId);
+            stmtUser.setString(2, firstNameField.getText().trim());
+            stmtUser.setString(3, lastNameField.getText().trim());
+            stmtUser.setString(4, emailField.getText().trim());
+            stmtUser.setString(5, password);
+            stmtUser.setString(6, addressField.getText().trim());
+            stmtUser.setString(7, cityField.getText().trim());
+            stmtUser.setString(8, stateField.getText().trim());
+            stmtUser.setString(9, postalCodeField.getText().trim());
+            stmtUser.setString(10, countryField.getText().trim());
+            stmtUser.setString(11, phoneField.getText().trim());
+            stmtUser.setString(12, dateOfBirthField.getText().trim());
+            stmtUser.executeUpdate();
 
-    private static void styleLoginButton(JButton button, JFrame frame) {
-        button.setForeground(new Color(0, 122, 204));
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setFont(new Font("Arial", Font.PLAIN, 14));
-        button.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Redirecting to login page...", "Login", JOptionPane.INFORMATION_MESSAGE));
-    }
-
-    private static String generateUserId(Connection conn) throws SQLException {
-        String sql = "SELECT userId FROM User ORDER BY userId DESC LIMIT 1";
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        if (rs.next()) {
-            String lastUserId = rs.getString("userId");
-            // Check if the userId is in the expected format
-            if (lastUserId.length() >= 9) {  // "C000_0001" length is 9
-                int lastNumber = Integer.parseInt(lastUserId.substring(5));  // Get the number part after "C000_"
-                return "C000_" + String.format("%04d", lastNumber + 1);
+            if (prefix.equals("S")) {
+                String sqlStaff = "INSERT INTO Staff (staffId, position) VALUES (?, ?)";
+                PreparedStatement stmtStaff = conn.prepareStatement(sqlStaff);
+                stmtStaff.setString(1, userId);
+                stmtStaff.setString(2, positionField.getText().trim());
+                stmtStaff.executeUpdate();
+            } else {
+                String sqlCustomer = "INSERT INTO Customer (customerId) VALUES (?)";
+                PreparedStatement stmtCustomer = conn.prepareStatement(sqlCustomer);
+                stmtCustomer.setString(1, userId);
+                stmtCustomer.executeUpdate();
             }
-        }
-        // Return the first userId when no previous ones are found
-        return "C000_002";
-    }
-
-    private static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes());
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) hexString.append(String.format("%02x", b));
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            return password;
+            JOptionPane.showMessageDialog(frame, "Account Created Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(frame, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
+

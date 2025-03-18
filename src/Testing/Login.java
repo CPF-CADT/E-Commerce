@@ -2,6 +2,8 @@ package Testing;
 
 import Database.MySQLConnection;
 import User.Staff;
+import User.User;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +26,7 @@ public class Login {
             PreparedStatement preparedStatement = MySQLConnection.getConnection().prepareStatement(query);
             preparedStatement.setString(1, email);
             ResultSet result = preparedStatement.executeQuery();
+            
 
             if (result.next()) {
                 String userId = result.getString("userId");
@@ -59,5 +62,17 @@ public class Login {
         } finally {
             input.close(); // Close the scanner
         }
+    }
+     public User loadData(String userID,User user){
+        String query = " ";
+        if(user instanceof Admin){
+            if(userID.contains("S")){
+                query = "SELECT u.id, u.first_name, u.last_name, u.dob, u.address, u.email, u.phone_number, u.password, s.status FROM User AS u JOIN Students AS s ON u.id = s.user_id WHERE u.id = '"+userID+"';"; //NOT READY 
+            }else if(userID.contains("T")){
+                query = "SELECT u.id, u.first_name, u.last_name, u.dob, u.address, u.email, u.phone_number, u.password, t.role_major,t.status FROM User AS u JOIN Teachers AS t ON u.id = t.user_id WHERE u.id = '"+userID+"';"; //NOT READY 
+            }
+            return getUsr(query);
+        }
+        return null;
     }
 }
