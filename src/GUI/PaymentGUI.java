@@ -1,3 +1,5 @@
+package GUI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -5,8 +7,8 @@ import javax.swing.*;
 
 public class PaymentGUI extends JFrame {
     private JButton cashPaymentButton, qrPaymentButton;
-    private static final String QR_IMAGE_PATH = "/home/sat-panha/Learn/Python/payment_qr.png";
-    private static final String CHECK_IMAGE_PATH = "/home/sat-panha/Learn/Python/checkmark.png";
+    private static final String QR_IMAGE_PATH = "payment_qr.png";
+    private static final String CHECK_IMAGE_PATH = "checkmark.png";
 
     public PaymentGUI() {
         setTitle("Payment Methods");
@@ -41,7 +43,7 @@ public class PaymentGUI extends JFrame {
     }
 
     private void generateQRCode() {
-        ImageIcon qrIcon = loadImage(QR_IMAGE_PATH);
+        ImageIcon qrIcon = loadImage(QR_IMAGE_PATH );
         if (qrIcon != null) {
             JOptionPane.showMessageDialog(null, "Scan this QR code to complete your payment.", "QR Payment", JOptionPane.INFORMATION_MESSAGE, qrIcon);
 
