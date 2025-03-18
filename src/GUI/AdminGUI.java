@@ -24,8 +24,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   private static ImageIcon selected = new ImageIcon(
       new ImageIcon("src/GUI/Resources/selected.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
   
-  private static Color gray = new Color(121, 133, 165);
- 
+  private static Color linkWater = new Color(237, 242, 250);
 
   JComboBox view;
   JComboBox sort;
@@ -99,10 +98,10 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
     header.add(topHeader);
     header.add(lowHeader);
-    header.setBackground(gray);
+    header.setBackground(linkWater);
 
     footer.add(deleteSelect);
-    footer.setBackground(gray);
+    footer.setBackground(linkWater);
 
     this.setLayout(new BorderLayout());
     this.setBackground(new Color(255, 255, 255));
