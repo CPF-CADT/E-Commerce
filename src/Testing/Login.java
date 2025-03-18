@@ -65,13 +65,14 @@ public class Login {
     }
      public User loadData(String userID,User user){
         String query = " ";
-        if(user instanceof Admin){
+        if(user instanceof Staff){
+            query = "SELECT u.id, u.first_name, u.last_name, u.dob, u.address, u.email, u.phone_number, u.password, s.position, s.status FROM User AS u JOIN Staff AS s ON u.id = s.user_id WHERE u.id = '"+userID+"';"; //NOT READY
             if(userID.contains("S")){
                 query = "SELECT u.id, u.first_name, u.last_name, u.dob, u.address, u.email, u.phone_number, u.password, s.status FROM User AS u JOIN Students AS s ON u.id = s.user_id WHERE u.id = '"+userID+"';"; //NOT READY 
             }else if(userID.contains("T")){
                 query = "SELECT u.id, u.first_name, u.last_name, u.dob, u.address, u.email, u.phone_number, u.password, t.role_major,t.status FROM User AS u JOIN Teachers AS t ON u.id = t.user_id WHERE u.id = '"+userID+"';"; //NOT READY 
             }
-            return getUsr(query);
+            return getUser(query);
         }
         return null;
     }

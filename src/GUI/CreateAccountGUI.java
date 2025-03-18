@@ -9,12 +9,14 @@ import utils.Encryption;
 
 public class CreateAccountGUI {
     private static final HashMap<String, String> userTypes = new HashMap<>();
+    private static String userId;
     static {
         userTypes.put("Customer", "C");
         userTypes.put("Staff", "S");
     }
 
     public static void main(String[] args) {
+        userId = args[0];
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Create Account");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -120,6 +122,8 @@ public class CreateAccountGUI {
                 stmtCustomer.executeUpdate();
             }
             JOptionPane.showMessageDialog(frame, "Account Created Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            frame.dispose();  // Close Create Account frame
+            LoginGUI.main(null);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(frame, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

@@ -12,17 +12,20 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class CategoryProductGUI extends JFrame {
+    
     private static DefaultListModel<String> categoryListModel;
     private static DefaultListModel<String> productListModel;
     private static JList<String> categoryList;
     private static JList<String> productList;
     private static JTextArea productDetailsArea;
-   
+    private static String userId;
     public static void main(String[] args) {
-       
+        if (args != null && args.length > 0) {
+            userId = args[0];  // Assign userId from command line argument
+        }
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
-
+      
     public static void createGUI() {
         JFrame frame = new JFrame("E-Commerce System");
         frame.setSize(800, 500);

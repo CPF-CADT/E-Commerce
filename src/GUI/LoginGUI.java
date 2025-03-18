@@ -7,7 +7,7 @@ import javax.swing.*;
 import utils.Encryption;
 
 public class LoginGUI extends JFrame {
-
+    private static String userId;
     public LoginGUI() {
         setTitle("Login");
         setSize(700, 500);
@@ -66,8 +66,9 @@ public class LoginGUI extends JFrame {
         createAccountButton.setFont(new Font("Arial", Font.BOLD, 16));
         createAccountButton.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
         createAccountButton.addActionListener(e -> {
-            dispose();
-            new CreateAccountGUI();  // Redirect to create account screen
+            dispose();  // Close login window
+            String[] args = new String[]{userId};
+            CreateAccountGUI.main(args);  // Open the create account screen
         });
         panel.add(createAccountButton);
 
@@ -77,37 +78,36 @@ public class LoginGUI extends JFrame {
 
     // Validate login credentials
     private boolean validateLogin(String email, String password) {
-        // Query to fetch user credentials (userId) and role (staff or customer)
         String query = "SELECT userId, password FROM User WHERE email = ?";
-        try (Connection conn = MySQLConnection.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+        Connection conn = MySQLConnection.getConnection();
 
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Database connection failed. Please try again later.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, email);
             ResultSet result = preparedStatement.executeQuery();
 
             if (result.next()) {
-                // Get the stored password and userId
                 String storedHashedPassword = result.getString("password");
                 String userId = result.getString("userId");
 
-                // Check if the entered password matches the stored password
                 if (Encryption.verifyPassword(storedHashedPassword, password)) {
                     System.out.println("Login successful!");
-
+                    String[] args = new String[]{userId};
                     if (userId.startsWith("S")) {
-                      
                         System.out.println("User is staff.");
-                        
-                        AdminGUI.main(null);  
+                        AdminGUI.main(args);  // Open Admin GUI
                     } else if (userId.startsWith("C")) {
-                        // User is customer
                         System.out.println("User is customer.");
-                       CategoryProductGUI.main(new String[]{userId}); 
+                        CategoryProductGUI.main(args);  // Open CategoryProduct GUI
                     } else {
                         System.out.println("Unknown user type.");
                     }
 
-                    return true;  // Login successful
+                    return true;
                 } else {
                     System.out.println("Incorrect password!");
                 }
@@ -116,9 +116,16 @@ public class LoginGUI extends JFrame {
             }
 
         } catch (SQLException e) {
-            System.out.println("Database error: " + e.getMessage());
+            System.out.println("Database query error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Database query failed. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println("Failed to close connection: " + e.getMessage());
+            }
         }
-        return false;  // Login failed
+        return false;
     }
 
     public static void main(String[] args) {
