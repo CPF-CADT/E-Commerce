@@ -14,7 +14,6 @@ public class Category {
     protected int numberOfProducts;
 
     // Database connection details
-  
     private static final String URL = "jdbc:mysql://localhost:3306/e_commerce";
     private static final String USER = "root";
     private static final String PASSWORD = "";
