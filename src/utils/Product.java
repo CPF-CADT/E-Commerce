@@ -56,7 +56,7 @@ public class Product {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Product(
-                        // rs.getInt("productId"),
+                        rs.getInt("productId"),
                         rs.getString("name"),
                         rs.getDouble("price"),
                         rs.getInt("stock"),
