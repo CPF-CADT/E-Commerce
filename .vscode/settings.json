@@ -1,6 +1,0 @@
-{
-  "java.project.referencedLibraries": [
-    "lib/**/*.jar",
-    "/home/sat-panha/Downloads/Telegram Desktop/JavaDB/mysql-connector-j-9.2.0.jar"
-  ]
-}
