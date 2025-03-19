@@ -9,27 +9,37 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.*;
 
+import Database.MySQLConnection;
+
+@SuppressWarnings("rawtypes") // Remove JComboBox warning
 public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
-  ImageIcon checked = new ImageIcon(
+    /* -------------------- Resources -------------------- */
+  
+  private static ImageIcon checked = new ImageIcon(
       new ImageIcon("src/GUI/Resources/checked.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-  ImageIcon unchecked = new ImageIcon(
+  private static ImageIcon unchecked = new ImageIcon(
       new ImageIcon("src/GUI/Resources/unchecked.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-  ImageIcon selected = new ImageIcon(
+  private static ImageIcon selected = new ImageIcon(
       new ImageIcon("src/GUI/Resources/selected.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-  Color gray = new Color(121, 133, 165);
+  
+  private static Color linkWater = new Color(237, 242, 250);
 
-  JComboBox view; // Tracked
+  JComboBox view;
   JComboBox sort;
-  JRadioButton deleteButton; // Tracked
-  JRadioButton editButton; // Tracked
-  JCheckBox check; // Tracked
-  JTextField search; // Tracked
+  JRadioButton deleteButton;
+  JRadioButton editButton;
+  JCheckBox check;
+  JTextField search;
 
-  JButton deleteSelect; // Tracked
+  JButton deleteSelect; 
 
   String prevText = new String(); // For keypress event
 
@@ -37,73 +47,101 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel header = new JPanel(new GridLayout(2, 1));
     JPanel topHeader = new JPanel(new GridLayout(1, 4, 10, 0));
     JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
+    JPanel main = new JPanel();
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 
+    /* -------------------- Upper Header -------------------- */
+    
     String[] viewList = { "Customer", "Staff", "Product" };
-    view = new JComboBox<>(viewList);
+    view = Style.comboBox(viewList);
     view.addActionListener(this);
-    view.setOpaque(false);
 
-    String[] viewSort = { "Ascending", "Descending" };
-    sort = new JComboBox<>(viewSort);
-    sort.addActionListener(this);
-    sort.setOpaque(false);
-
-    deleteButton = new JRadioButton("Delete");
+    deleteButton = Style.radioButton("Delete");
     deleteButton.addActionListener(this);
-    deleteButton.setOpaque(false);
-    deleteButton.setIcon(unchecked);
-    deleteButton.setSelectedIcon(selected);
 
-    editButton = new JRadioButton("Edit");
+    editButton = Style.radioButton("Edit");
     editButton.addActionListener(this);
-    editButton.setOpaque(false);
-    editButton.setIcon(unchecked);
-    editButton.setSelectedIcon(selected);
 
     ButtonGroup option = new ButtonGroup();
     option.add(deleteButton);
     option.add(editButton);
 
-    check = new JCheckBox("Select multiple");
+    check = Style.checkBox("Select multiple");
     check.addActionListener(this);
     check.setEnabled(false);
-    check.setOpaque(false);
-    check.setIcon(unchecked);
-    check.setSelectedIcon(checked);
 
-    search = new JTextField("Enter to search");
+    /* -------------------- Lower Header -------------------- */
+    
+    String[] viewSort = { "Ascending", "Descending" };
+    sort = Style.comboBox(viewSort);
+    sort.addActionListener(this);
+
+    search = Style.textField("Enter to search");
     search.addKeyListener(this);
-    search.setOpaque(false);
 
-    deleteSelect = new JButton("Delete");
+    /* -------------------- Main -------------------- */
+
+    main.setBackground(Color.CYAN);
+
+    /* -------------------- Footer -------------------- */
+    
+    deleteSelect = Style.button("Delete");
     deleteSelect.setEnabled(false);
     deleteSelect.addActionListener(this);
-    deleteButton.setOpaque(false);
 
     topHeader.add(view);
     topHeader.add(editButton);
     topHeader.add(deleteButton);
     topHeader.add(check);
-    topHeader.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2, true));
     topHeader.setOpaque(false);
 
     lowHeader.add(sort);
     lowHeader.add(search);
-    lowHeader.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2, true));
     lowHeader.setOpaque(false);
 
     header.add(topHeader);
     header.add(lowHeader);
-    header.setBackground(gray);
+    header.setBackground(linkWater);
 
     footer.add(deleteSelect);
-    footer.setBackground(gray);
+    footer.setBackground(linkWater);
 
     this.setLayout(new BorderLayout());
     this.setBackground(new Color(255, 255, 255));
     this.add(header, BorderLayout.NORTH);
+    this.add(main, BorderLayout.CENTER);
     this.add(footer, BorderLayout.SOUTH);
+  }
+
+  private JPanel mainPanel (char option) {
+    JPanel panel = new JPanel(new GridLayout(0, 1, 0, 10));
+    String query = new String();
+
+    switch (option) {
+      case 'C':
+        query = "SELECT c.customerId, u.firstname, u.lastname FROM customer c JOIN user u ON c.customerId = u.userId";
+        break;
+      case 'S':
+        query = "SELECT s.staffId, u.firstname, u.lastname FROM staff s JOIN user u ON s.staffId = u.userId";
+        break;
+      case 'P':
+        query = "SELECT p.productId, p.name FROM product p";
+        break;
+    }
+    Connection connection = MySQLConnection.getConnection();
+    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+      ResultSet result = preparedStatement.executeQuery();
+    } catch (SQLException e) {
+      JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
+    } finally {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return panel;
   }
 
   @Override
@@ -126,6 +164,27 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
         default:
           break;
       }
+
+    } else if (e.getSource() == editButton) {
+      check.setEnabled(false);
+      System.out.println("Edit");
+      
+      if (deleteSelect.isEnabled()) {
+        deleteSelect.setEnabled(!deleteSelect.isEnabled());
+      }
+
+    } else if (e.getSource() == deleteButton) {
+      check.setEnabled(true);
+      System.out.println("Delete");
+      
+      if (!deleteSelect.isEnabled() && check.isSelected()) {
+        deleteSelect.setEnabled(!deleteSelect.isEnabled());
+      }
+
+    } else if (e.getSource() == check) {
+      deleteSelect.setEnabled(check.isSelected());
+      System.out.println(check.isSelected());
+
     } else if (e.getSource() == sort) {
       switch (sort.getSelectedIndex()) {
         case 0:
@@ -139,25 +198,6 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
         default:
           break;
       }
-    } else if (e.getSource() == deleteButton) {
-      check.setEnabled(true);
-      System.out.println("Delete");
-      
-      if (!deleteSelect.isEnabled() && check.isSelected()) {
-        deleteSelect.setEnabled(!deleteSelect.isEnabled());
-      }
-
-    } else if (e.getSource() == editButton) {
-      check.setEnabled(false);
-      System.out.println("Edit");
-      
-      if (deleteSelect.isEnabled()) {
-        deleteSelect.setEnabled(!deleteSelect.isEnabled());
-      }
-
-    } else if (e.getSource() == check) {
-      deleteSelect.setEnabled(check.isSelected());
-      System.out.println(check.isSelected());
 
     } else if (e.getSource() == deleteSelect) {
       System.out.println(deleteSelect.getText());
@@ -183,12 +223,69 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   }
 
   public static void main(String[] args) {
-    JFrame frame = new JFrame();
 
-    frame.add(new AdminGUI());
-    frame.setSize(500, 500);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setLocationRelativeTo(null);
-    frame.setVisible(true);
+    SwingUtilities.invokeLater(new Runnable() {
+
+      @Override
+      public void run() {
+        
+        JFrame frame = new JFrame("Admin panel");
+    
+        frame.add(new AdminGUI());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+      }
+    });
+  }
+
+  private static class Style {
+    
+    private static JComboBox comboBox (String[] list) {
+      JComboBox style = new JComboBox<>(list);
+      style.setOpaque(false);
+
+      return style;
+    }
+
+    private static JRadioButton radioButton (String label) {
+      JRadioButton style = new JRadioButton(label);
+      style.setOpaque(false);
+      style.setIcon(AdminGUI.unchecked);
+      style.setSelectedIcon(AdminGUI.selected);
+
+      return style;
+    }
+
+    private static JCheckBox checkBox (String label) {
+      JCheckBox style = new JCheckBox(label);
+      style.setOpaque(false);
+      style.setIcon(AdminGUI.unchecked);
+      style.setSelectedIcon(AdminGUI.checked);
+
+      return style;
+    }
+
+    private static JButton button (String label) {
+      JButton style = new JButton(label);
+      style.setOpaque(false);
+
+      return style;
+    }
+
+    private static JTextField textField (String label) {
+      JTextField style = new JTextField(label);
+      style.setOpaque(false);
+
+      return style;
+    }
+
+    private static JPanel listPanel (String label) {
+      JPanel style = new JPanel(new FlowLayout());
+      JLabel name = new JLabel(label);
+
+      return style;
+    }
   }
 }

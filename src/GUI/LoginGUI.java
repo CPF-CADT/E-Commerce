@@ -7,7 +7,8 @@ import javax.swing.*;
 import utils.Encryption;
 
 public class LoginGUI extends JFrame {
-
+    private static String userId;
+    
     public LoginGUI() {
         setTitle("Login");
         setSize(700, 500);
@@ -52,10 +53,14 @@ public class LoginGUI extends JFrame {
             String password = new String(passwordField.getPassword());
             boolean loginSuccess = validateLogin(email, password);
             if (loginSuccess) {
-                JOptionPane.showMessageDialog(this, " Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();
+                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();  // Close login window
+                
+                // Pass userId to CategoryProductGUI
+                String[] args = new String[]{userId};
+                CategoryProductGUI.main(args);  // Open CategoryProductGUI
             } else {
-                JOptionPane.showMessageDialog(this, " Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -66,8 +71,9 @@ public class LoginGUI extends JFrame {
         createAccountButton.setFont(new Font("Arial", Font.BOLD, 16));
         createAccountButton.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
         createAccountButton.addActionListener(e -> {
-            dispose();
-            new CreateAccountGUI();
+            dispose();  // Close login window
+            String[] args = new String[]{userId};
+            CreateAccountGUI.main(args);  // Open the create account screen
         });
         panel.add(createAccountButton);
 
@@ -77,34 +83,46 @@ public class LoginGUI extends JFrame {
 
     // Validate login credentials
     private boolean validateLogin(String email, String password) {
-        String query = "SELECT password FROM User WHERE email = ?";
-        try (Connection conn = MySQLConnection.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+        String query = "SELECT userId, password FROM User WHERE email = ?";
+        Connection conn = MySQLConnection.getConnection();
 
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Database connection failed. Please try again later.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
             preparedStatement.setString(1, email);
             ResultSet result = preparedStatement.executeQuery();
 
             if (result.next()) {
                 String storedHashedPassword = result.getString("password");
-                System.out.println("🔍 Checking password for user: " + email);
-                AdminGUI.main(null);
-                // Compare hashed password using BCrypt
+                userId = result.getString("userId");
+
                 if (Encryption.verifyPassword(storedHashedPassword, password)) {
                     System.out.println("Login successful!");
                     return true;
                 } else {
-                    System.out.println(" Incorrect password!");
+                    System.out.println("Incorrect password!");
                 }
             } else {
-                System.out.println(" No user found with email: " + email);
+                System.out.println("No user found with email: " + email);
             }
+
         } catch (SQLException e) {
-            System.out.println(" Database error: " + e.getMessage());
+            System.out.println("Database query error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Database query failed. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println("Failed to close connection: " + e.getMessage());
+            }
         }
         return false;
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginGUI::new);
+        SwingUtilities.invokeLater(LoginGUI::new);  // Run the login GUI on the Event Dispatch Thread
     }
 }
