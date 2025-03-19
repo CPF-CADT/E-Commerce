@@ -133,9 +133,9 @@ public class CategoryProductGUI {
     }
 
     private static void loadCategories() {
-        categoryListModel.clear();
-        productListModel.clear();
-        productDetailsArea.setText("");
+        // categoryListModel.clear();
+        // productListModel.clear();
+        // productDetailsArea.setText("");
         
         try {
             // Get all categories from the database
@@ -161,12 +161,12 @@ public class CategoryProductGUI {
     }
     
     private static void loadProductsByCategory(String name) {
-        productListModel.clear();
-        productDetailsArea.setText("");
+        // productListModel.clear();
+        // productDetailsArea.setText("");
         
         try {
             // First get the categoryId
-            String categoryIdQuery = "SELECT * FROM Category WHERE name = ?";
+            String categoryIdQuery = "SELECT * FROM Product WHERE name = ?";
             String categoryId = null;
             
             try (var conn = MySQLConnection.getConnection();

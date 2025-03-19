@@ -41,8 +41,6 @@ create table if not exists Category(
     name varchar(255) not null
 );
 
-
-
 CREATE TABLE IF NOT EXISTS Product (
     productId VARCHAR(20) PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
