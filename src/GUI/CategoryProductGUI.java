@@ -1,16 +1,14 @@
 package GUI;
 
 import Database.MySQLConnection;
-import User.Staff;
-import utils.Product;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import utils.Product;
 
 public class CategoryProductGUI extends JFrame {
 
@@ -19,14 +17,16 @@ public class CategoryProductGUI extends JFrame {
     private static JList<String> categoryList;
     private static JList<String> productList;
     private static JTextArea productDetailsArea;
-    private static String userId;
+    // private static String userId;
 
     private static List<Product> cart = new ArrayList<>();  // Cart to store the selected products
-
+    
     public static void main(String[] args) {
-        if (args != null && args.length > 0) {
-            userId = args[0];
-        }
+
+        // if (args != null && args.length > 0) {
+        //     userId = args[0];
+        // }
+        // new CategoryProductGUI();
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
 
@@ -112,14 +112,18 @@ public class CategoryProductGUI extends JFrame {
         // Load categories from database
         loadCategories();
 
+        frame.setVisible(true);
+
         // Add event listeners
         categoryList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     String selectedCategory = categoryList.getSelectedValue();
+                    System.out.println("Selected category: " + selectedCategory);
                     if (selectedCategory != null) {
                         loadProductsByCategory(selectedCategory);
+                        System.out.println("Products loaded for category: " + selectedCategory);
                     }
                 }
             }
@@ -137,7 +141,7 @@ public class CategoryProductGUI extends JFrame {
             }
         });
 
-        refreshButton.addActionListener(e -> loadCategories());
+        refreshButton.addActionListener(e -> CategoryProductGUI.loadCategories());
 
         exitButton.addActionListener(e -> {
             MySQLConnection.closeConnection();
@@ -198,25 +202,58 @@ public class CategoryProductGUI extends JFrame {
     private static void loadProductsByCategory(String categoryName) {
         productListModel.clear();
         productDetailsArea.setText("");
-
-        // Fetch products from the database using the Product class
-        List<Product> products = Product.getProductsByCategory(categoryName);
-
-        // Debugging: Check if products are populated
-        System.out.println("Products fetched for category: " + categoryName);
-        if (products.isEmpty()) {
-            System.out.println("No products found in the database for category: " + categoryName);
-        } else {
-            System.out.println("Found " + products.size() + " products.");
-        }
-
-        if (products.isEmpty()) {
-            productListModel.addElement("No products found");
-        } else {
-            for (Product product : products) {
-                System.out.println("Product: " + product.getName() + " - Price: $" + product.getPrice());
-                productListModel.addElement(product.getName());
+    
+        try (Connection conn = MySQLConnection.getConnection()) {
+            // Check if connection is valid
+            if (conn == null || conn.isClosed()) {
+                JOptionPane.showMessageDialog(null, 
+                    "Error: Unable to establish a database connection.",
+                    "Database Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
             }
+    
+            // Get the categoryId from the categoryName
+            String categoryIdQuery = "SELECT categoryId FROM Category WHERE name = ?";
+            String categoryId = null;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(categoryIdQuery)) {
+                pstmt.setString(1, categoryName);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        categoryId = rs.getString("categoryId");
+                    }
+                }
+            }
+            
+            if (categoryId == null) {
+                productListModel.addElement("No products found");
+                return;
+            }
+            
+            // Get products for the selected category
+            String productsQuery = "SELECT * FROM Product WHERE categoryId = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(productsQuery)) {
+                pstmt.setString(1, categoryId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    boolean hasProducts = false;
+                    while (rs.next()) {
+                        hasProducts = true;
+                        String productName = rs.getString("name");
+                        productListModel.addElement(productName);
+                    }
+                    
+                    if (!hasProducts) {
+                        productListModel.addElement("No products found");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, 
+                "Error loading products: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 

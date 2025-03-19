@@ -1,5 +1,6 @@
 package utils;
 
+import Database.MySQLConnection;
 import User.Staff;
 import java.sql.*;
 import java.util.ArrayList;
@@ -53,39 +54,16 @@ public class Product {
         }
     }
     
-    public static List<Product> getProductsByCategory(String name) {
-        List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM Product WHERE categoryId = ?";
+    // public static List<Product> getProductsByCategory(String name) {
+    //     List<Product> products = new ArrayList<>();
+    //     String sql = "SELECT * FROM Product WHERE name = ?";
             
-        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            ResultSet rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                Product product = new Product(
-                        rs.getString("productId"),
-                        rs.getString("name"),
-                        rs.getDouble("price"),
-                        rs.getInt("stock"),
-                        rs.getString("categoryId"),
-                        rs.getString("description")
-                );
-                products.add(product);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error retrieving products by category: " + e.getMessage());
-        }
-        
-        return products;
-    }
-
-    // public static Product getProductById(String id) {
-    //     String sql = "SELECT * FROM Product WHERE productId = ?";
     //     try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-    //         stmt.setString(1, id);
+    //         stmt.setString(1, name);
     //         ResultSet rs = stmt.executeQuery();
-    //         if (rs.next()) {
-    //             return new Product(
+            
+    //         while (rs.next()) {
+    //             Product product = new Product(
     //                     rs.getString("productId"),
     //                     rs.getString("name"),
     //                     rs.getDouble("price"),
@@ -93,14 +71,40 @@ public class Product {
     //                     rs.getString("categoryId"),
     //                     rs.getString("description")
     //             );
+    //             products.add(product);
     //         }
     //     } catch (SQLException e) {
-    //         System.out.println("Error retrieving product: " + e.getMessage());
+    //         System.out.println("Error retrieving products by category: " + e.getMessage());
     //     }
-    //     return null;
+        
+    //     return products;
     // }
-    
-    
+
+    public static List<Product> getProductsByCategory(String categoryName) {
+        List<Product> products = new ArrayList<>();
+        try (Connection conn = MySQLConnection.getConnection()) {
+            String query = "SELECT * FROM Product WHERE categoryId = (SELECT categoryId FROM Category WHERE name = ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, categoryName);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        products.add(new Product(
+                            rs.getString("productId"),
+                            rs.getString("name"),
+                            rs.getDouble("price"),
+                            rs.getInt("stock"),
+                            rs.getString("categoryId"),
+                            rs.getString("description")
+                        ));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
 
     public void updateStock(int newStock, Staff admin) {
         if (admin != null) {
