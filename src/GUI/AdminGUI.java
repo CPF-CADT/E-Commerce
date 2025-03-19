@@ -9,8 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.*;
+
+import Database.MySQLConnection;
 
 @SuppressWarnings("rawtypes") // Remove JComboBox warning
 public class AdminGUI extends JPanel implements ActionListener, KeyListener {
@@ -33,8 +39,6 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   JCheckBox check;
   JTextField search;
 
-  
-
   JButton deleteSelect; 
 
   String prevText = new String(); // For keypress event
@@ -43,9 +47,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel header = new JPanel(new GridLayout(2, 1));
     JPanel topHeader = new JPanel(new GridLayout(1, 4, 10, 0));
     JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
-    JPanel main = new JPanel(new GridLayout(0, 1, 0, 10));
+    JPanel main = new JPanel();
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-    
 
     /* -------------------- Upper Header -------------------- */
     
@@ -108,6 +111,37 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     this.add(header, BorderLayout.NORTH);
     this.add(main, BorderLayout.CENTER);
     this.add(footer, BorderLayout.SOUTH);
+  }
+
+  private JPanel mainPanel (char option) {
+    JPanel panel = new JPanel(new GridLayout(0, 1, 0, 10));
+    String query = new String();
+
+    switch (option) {
+      case 'C':
+        query = "SELECT c.customerId, u.firstname, u.lastname FROM customer c JOIN user u ON c.customerId = u.userId";
+        break;
+      case 'S':
+        query = "SELECT s.staffId, u.firstname, u.lastname FROM staff s JOIN user u ON s.staffId = u.userId";
+        break;
+      case 'P':
+        query = "SELECT p.productId, p.name FROM product p";
+        break;
+    }
+    Connection connection = MySQLConnection.getConnection();
+    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+      ResultSet result = preparedStatement.executeQuery();
+    } catch (SQLException e) {
+      JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
+    } finally {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return panel;
   }
 
   @Override
@@ -243,6 +277,13 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     private static JTextField textField (String label) {
       JTextField style = new JTextField(label);
       style.setOpaque(false);
+
+      return style;
+    }
+
+    private static JPanel listPanel (String label) {
+      JPanel style = new JPanel(new FlowLayout());
+      JLabel name = new JLabel(label);
 
       return style;
     }
