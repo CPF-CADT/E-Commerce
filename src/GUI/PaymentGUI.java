@@ -7,7 +7,7 @@ public class PaymentGUI extends JFrame {
     private JButton cashPaymentButton, qrPaymentButton;
     
     // Correct paths for images inside `resources` folder
-    private static final String QR_IMAGE_PATH = "/resource/payment_qr.png";  
+    private static final String QR_IMAGE_PATH = "Resource/payment_qr.png";  
     private static final String CHECK_IMAGE_PATH = "/checkmark.png";  
 
     public PaymentGUI() {
