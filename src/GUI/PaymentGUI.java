@@ -51,6 +51,7 @@ public class PaymentGUI extends JFrame {
             if (result == JOptionPane.YES_OPTION) {
                 ImageIcon checkIcon = loadImage(CHECK_IMAGE_PATH);
                 if (checkIcon != null) {
+                    
                     JOptionPane.showMessageDialog(null, "Payment Successful!", "Success", JOptionPane.INFORMATION_MESSAGE, checkIcon);
                 } else {
                     JOptionPane.showMessageDialog(null, "Payment Successful, but checkmark image not found.", "Success", JOptionPane.INFORMATION_MESSAGE);

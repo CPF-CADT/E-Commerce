@@ -33,6 +33,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   JCheckBox check;
   JTextField search;
 
+  
+
   JButton deleteSelect; 
 
   String prevText = new String(); // For keypress event
@@ -43,6 +45,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
     JPanel main = new JPanel(new GridLayout(0, 1, 0, 10));
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+    
 
     /* -------------------- Upper Header -------------------- */
     
