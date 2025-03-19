@@ -10,7 +10,7 @@ import java.util.List;
 public class Product {
     private final String productId;  // Unique product identifier
     private String name, categoryId, description;
-    private double price;
+    public double price;
     private int stock;
 
     // Store products in a HashMap for quick retrieval by ID

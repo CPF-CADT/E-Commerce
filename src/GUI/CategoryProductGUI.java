@@ -200,23 +200,60 @@ public class CategoryProductGUI extends JFrame {
         productDetailsArea.setText("");
 
         // Fetch products from the database using the Product class
-        List<Product> products = Product.getProductsByCategory(categoryName);
-
-        // Debugging: Check if products are populated
-        System.out.println("Products fetched for category: " + categoryName);
-        if (products.isEmpty()) {
-            System.out.println("No products found in the database for category: " + categoryName);
-        } else {
-            System.out.println("Found " + products.size() + " products.");
-        }
-
-        if (products.isEmpty()) {
-            productListModel.addElement("No products found");
-        } else {
-            for (Product product : products) {
-                System.out.println("Product: " + product.getName() + " - Price: $" + product.getPrice());
-                productListModel.addElement(product.getName());
+        List<Product> products = new ArrayList<>();
+        
+        try (Connection conn = MySQLConnection.getConnection()) {
+            // Check if connection is valid
+            if (conn == null || conn.isClosed()) {
+                JOptionPane.showMessageDialog(null, 
+                    "Error: Unable to establish a database connection.",
+                    "Database Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // Get products for the selected category
+            String sql = "SELECT * FROM Product WHERE categoryId = (SELECT categoryId FROM Category WHERE name = ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, categoryName);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        Product product = new Product(
+                            rs.getString("productId"),
+                            rs.getString("name"),
+                            rs.getDouble("price"),
+                            rs.getInt("stock"),
+                            rs.getString("categoryId"),
+                            rs.getString("description")
+                        );
+                        products.add(product);
+                    }
+                }
+            }
+
+            // Debugging: Check if products are populated
+            System.out.println("Products fetched for category: " + categoryName);
+            if (products.isEmpty()) {
+                System.out.println("No products found in the database for category: " + categoryName);
+            } else {
+                System.out.println("Found " + products.size() + " products.");
+            }
+
+            if (products.isEmpty()) {
+                productListModel.addElement("No products found");
+            } else {
+                for (Product product : products) {
+                    System.out.println("Product: " + product.getName() + " - Price: $" + product.getPrice());
+                    productListModel.addElement(product.getName());
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();  // Detailed SQL error
+            JOptionPane.showMessageDialog(null, 
+                "Error retrieving products by category: " + e.getMessage(),
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -306,4 +343,3 @@ public class CategoryProductGUI extends JFrame {
         }
     }
 }
-
