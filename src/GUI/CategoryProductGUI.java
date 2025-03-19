@@ -149,6 +149,9 @@ public class CategoryProductGUI extends JFrame {
             String selectedProduct = productList.getSelectedValue();
             if (selectedProduct != null) {
                 addToCart(selectedProduct);
+                // After adding to cart, open the payment window
+                PaymentGUI paymentGUI = new PaymentGUI();
+                paymentGUI.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(frame, "Please select a product to buy.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -231,19 +234,10 @@ public class CategoryProductGUI extends JFrame {
                 }
             }
 
-            // Debugging: Check if products are populated
-            System.out.println("Products fetched for category: " + categoryName);
-            if (products.isEmpty()) {
-                System.out.println("No products found in the database for category: " + categoryName);
-            } else {
-                System.out.println("Found " + products.size() + " products.");
-            }
-
             if (products.isEmpty()) {
                 productListModel.addElement("No products found");
             } else {
                 for (Product product : products) {
-                    System.out.println("Product: " + product.getName() + " - Price: $" + product.getPrice());
                     productListModel.addElement(product.getName());
                 }
             }
@@ -259,16 +253,6 @@ public class CategoryProductGUI extends JFrame {
 
     private static void displayProductDetails(String productName) {
         try (Connection conn = MySQLConnection.getConnection()) {
-            // Check if connection is valid
-            if (conn == null || conn.isClosed()) {
-                JOptionPane.showMessageDialog(null, 
-                    "Error: Unable to establish a database connection.",
-                    "Database Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Get product details based on productName
             String productQuery = "SELECT * FROM Product WHERE name = ?";
             try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
                 stmt.setString(1, productName);
@@ -294,7 +278,6 @@ public class CategoryProductGUI extends JFrame {
         }
     }
 
-    // Add the selected product to the cart
     private static void addToCart(String productName) {
         try (Connection conn = MySQLConnection.getConnection()) {
             String productQuery = "SELECT * FROM Product WHERE name = ?";
@@ -324,7 +307,6 @@ public class CategoryProductGUI extends JFrame {
         }
     }
 
-    // View the contents of the cart
     private static void viewCart() {
         if (cart.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Your cart is empty.", "Cart", JOptionPane.INFORMATION_MESSAGE);
