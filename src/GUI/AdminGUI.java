@@ -21,6 +21,24 @@ import Database.MySQLConnection;
 @SuppressWarnings("rawtypes") // Remove JComboBox warning
 public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
+  public static void main(String[] args) {
+
+    SwingUtilities.invokeLater(new Runnable() {
+
+      @Override
+      public void run() {
+        
+        JFrame frame = new JFrame("Admin panel");
+    
+        frame.add(new AdminGUI());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+      }
+    });
+  }
+
     /* -------------------- Resources -------------------- */
   
   private static ImageIcon checked = new ImageIcon(
@@ -47,7 +65,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel header = new JPanel(new GridLayout(2, 1));
     JPanel topHeader = new JPanel(new GridLayout(1, 4, 10, 0));
     JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
-    JPanel main = new JPanel();
+    JPanel main = new JPanel(new BorderLayout());
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 
     /* -------------------- Upper Header -------------------- */
@@ -81,7 +99,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
     /* -------------------- Main -------------------- */
 
-    main.setBackground(Color.CYAN);
+    // main.add(new JScrollBar(), BorderLayout.EAST);
+    main.add(mainPanel('C'));
 
     /* -------------------- Footer -------------------- */
     
@@ -113,7 +132,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     this.add(footer, BorderLayout.SOUTH);
   }
 
-  private JPanel mainPanel (char option) {
+  private static JPanel mainPanel (char option) {
     JPanel panel = new JPanel(new GridLayout(0, 1, 0, 10));
     String query = new String();
 
@@ -128,9 +147,13 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
         query = "SELECT p.productId, p.name FROM product p";
         break;
     }
+    
     Connection connection = MySQLConnection.getConnection();
     try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
       ResultSet result = preparedStatement.executeQuery();
+      for (boolean i = false; result.next(); i = !i) {
+        panel.add(Style.listPanel(new String[]{result.getString("customerId") + result.getString("firstname") + result.getString("lastname")}, i));
+      }
     } catch (SQLException e) {
       JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
     } finally {
@@ -222,24 +245,6 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     }
   }
 
-  public static void main(String[] args) {
-
-    SwingUtilities.invokeLater(new Runnable() {
-
-      @Override
-      public void run() {
-        
-        JFrame frame = new JFrame("Admin panel");
-    
-        frame.add(new AdminGUI());
-        frame.setSize(500, 500);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-      }
-    });
-  }
-
   private static class Style {
     
     private static JComboBox comboBox (String[] list) {
@@ -281,9 +286,15 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       return style;
     }
 
-    private static JPanel listPanel (String label) {
+    private static JPanel listPanel (String[] label, boolean color) {
       JPanel style = new JPanel(new FlowLayout());
-      JLabel name = new JLabel(label);
+      for (String word : label) {
+        style.add(new JLabel(word));
+      }
+      if (color) {
+        style.setBackground(Color.LIGHT_GRAY);
+      }
+      style.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
 
       return style;
     }
