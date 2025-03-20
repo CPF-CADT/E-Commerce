@@ -24,10 +24,6 @@ public class CategoryProductGUI extends JFrame {
 
     public static void main(String[] args) {
 
-        // if (args != null && args.length > 0) {
-        //     userId = args[0];
-        // }
-        // new CategoryProductGUI();
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
 
