@@ -15,6 +15,7 @@ public class MySQLConnection {
 
     // Establish the connection
     public static Connection getConnection() {
+       connection = null;
         if (connection == null) {
             try {
                 connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);

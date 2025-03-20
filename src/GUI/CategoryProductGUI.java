@@ -20,7 +20,8 @@ public class CategoryProductGUI extends JFrame {
     // private static String userId;
 
     private static List<Product> cart = new ArrayList<>();  // Cart to store the selected products
-    
+    private static int selectedQuantity = 1;  // Default quantity when adding to the cart
+
     public static void main(String[] args) {
 
         // if (args != null && args.length > 0) {
@@ -99,13 +100,20 @@ public class CategoryProductGUI extends JFrame {
 
         JButton exitButton = new JButton("Exit");
         buttonPanel.add(exitButton);
-        
-        // Add "Buy" and "View Cart" buttons
-        JButton buyButton = new JButton("Buy Product");
-        buttonPanel.add(buyButton);
 
-        JButton viewCartButton = new JButton("View Cart");
-        buttonPanel.add(viewCartButton);
+        // Add buttons for quantity control and adding to cart
+        JButton increaseQuantityButton = new JButton("+");
+        JButton decreaseQuantityButton = new JButton("-");
+        JButton addToCartButton = new JButton("Add to Cart");
+
+        buttonPanel.add(decreaseQuantityButton);
+        buttonPanel.add(increaseQuantityButton);
+        buttonPanel.add(new JLabel("Quantity:"));
+        buttonPanel.add(addToCartButton);
+
+        // Proceed to Payment button
+        JButton proceedToPaymentButton = new JButton("Proceed to Payment");
+        buttonPanel.add(proceedToPaymentButton);
 
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -148,18 +156,37 @@ public class CategoryProductGUI extends JFrame {
             System.exit(0);
         });
 
-        // Action listener for Buy Product button
-        buyButton.addActionListener(e -> {
-            String selectedProduct = productList.getSelectedValue();
-            if (selectedProduct != null) {
-                addToCart(selectedProduct);
-            } else {
-                JOptionPane.showMessageDialog(frame, "Please select a product to buy.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Increase Quantity Button
+        increaseQuantityButton.addActionListener(e -> {
+            selectedQuantity++;
+            JOptionPane.showMessageDialog(frame, "Quantity increased to " + selectedQuantity);
+        });
+
+        // Decrease Quantity Button
+        decreaseQuantityButton.addActionListener(e -> {
+            if (selectedQuantity > 1) {
+                selectedQuantity--;
+                JOptionPane.showMessageDialog(frame, "Quantity decreased to " + selectedQuantity);
             }
         });
 
-        // Action listener for View Cart button
-        viewCartButton.addActionListener(e -> viewCart());
+        // Add to Cart Button
+        addToCartButton.addActionListener(e -> {
+            String selectedProduct = productList.getSelectedValue();
+            if (selectedProduct != null) {
+                addToCart(selectedProduct, selectedQuantity);
+                JOptionPane.showMessageDialog(frame, "Product added to cart with quantity: " + selectedQuantity);
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please select a product to add to cart.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Proceed to Payment Button
+        proceedToPaymentButton.addActionListener(e -> {
+            // Open the PaymentGUI when the button is clicked
+            PaymentGUI paymentWindow = new PaymentGUI();
+            paymentWindow.setVisible(true);
+        });
 
         frame.setVisible(true);
     }
@@ -170,16 +197,6 @@ public class CategoryProductGUI extends JFrame {
         productDetailsArea.setText("");
 
         try (Connection conn = MySQLConnection.getConnection()) {
-            // Check if connection is valid
-            if (conn == null || conn.isClosed()) {
-                JOptionPane.showMessageDialog(null, 
-                    "Error: Unable to establish a database connection.",
-                    "Database Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Get all categories from the database
             String sql = "SELECT name FROM Category";
             try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -191,7 +208,7 @@ public class CategoryProductGUI extends JFrame {
                 categoryListModel.addElement("No categories found");
             }
         } catch (SQLException e) {
-            e.printStackTrace();  // Detailed SQL error
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, 
                 "Error loading categories: " + e.getMessage(), 
                 "Database Error", 
@@ -259,16 +276,6 @@ public class CategoryProductGUI extends JFrame {
 
     private static void displayProductDetails(String productName) {
         try (Connection conn = MySQLConnection.getConnection()) {
-            // Check if connection is valid
-            if (conn == null || conn.isClosed()) {
-                JOptionPane.showMessageDialog(null, 
-                    "Error: Unable to establish a database connection.",
-                    "Database Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Get product details based on productName
             String productQuery = "SELECT * FROM Product WHERE name = ?";
             try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
                 stmt.setString(1, productName);
@@ -286,7 +293,7 @@ public class CategoryProductGUI extends JFrame {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();  // Detailed SQL error
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, 
                 "Error displaying product details: " + e.getMessage(), 
                 "Database Error", 
@@ -294,8 +301,7 @@ public class CategoryProductGUI extends JFrame {
         }
     }
 
-    // Add the selected product to the cart
-    private static void addToCart(String productName) {
+    private static void addToCart(String productName, int quantity) {
         try (Connection conn = MySQLConnection.getConnection()) {
             String productQuery = "SELECT * FROM Product WHERE name = ?";
             try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
@@ -310,8 +316,18 @@ public class CategoryProductGUI extends JFrame {
                             rs.getString("categoryId"),
                             rs.getString("description")
                         );
+
+                        String cartId = userId; // Assuming the user is a customer with the same userId
+                        String addCartQuery = "INSERT INTO Cart(cartId, productId, quantity) VALUES(?, ?, ?)";
+
+                        try (PreparedStatement addStmt = conn.prepareStatement(addCartQuery)) {
+                            addStmt.setString(1, cartId);
+                            addStmt.setString(2, product.getProductId());
+                            addStmt.setInt(3, quantity);
+                            addStmt.executeUpdate();
+                        }
+
                         cart.add(product);
-                        JOptionPane.showMessageDialog(null, "Product added to cart!");
                     }
                 }
             }
@@ -323,24 +339,4 @@ public class CategoryProductGUI extends JFrame {
                 JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    // View the contents of the cart
-    private static void viewCart() {
-        if (cart.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Your cart is empty.", "Cart", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            StringBuilder cartDetails = new StringBuilder();
-            double total = 0;
-
-            for (Product product : cart) {
-                cartDetails.append(product.getName()).append(" - $")
-                        .append(product.price).append("\n");
-                total += product.price;
-            }
-
-            cartDetails.append("\nTotal: $").append(total);
-            JOptionPane.showMessageDialog(null, cartDetails.toString(), "Your Cart", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
 }
-

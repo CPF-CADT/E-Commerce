@@ -8,7 +8,7 @@ import utils.Encryption;
 
 public class LoginGUI extends JFrame {
     private static String userId;
-    
+
     public LoginGUI() {
         setTitle("Login");
         setSize(700, 500);
@@ -55,10 +55,6 @@ public class LoginGUI extends JFrame {
             if (loginSuccess) {
                 JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 this.dispose();  // Close login window
-                
-                // Pass userId to CategoryProductGUI
-                String[] args = new String[]{userId};
-                CategoryProductGUI.main(args);  // Open CategoryProductGUI
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
@@ -97,10 +93,21 @@ public class LoginGUI extends JFrame {
 
             if (result.next()) {
                 String storedHashedPassword = result.getString("password");
-                userId = result.getString("userId");
+                String userId = result.getString("userId");
 
                 if (Encryption.verifyPassword(storedHashedPassword, password)) {
                     System.out.println("Login successful!");
+                    String[] args = new String[]{userId};
+                    if (userId.startsWith("S")) {
+                        System.out.println("User is staff.");
+                        AdminGUI.main(args);  // Open Admin GUI
+                    } else if (userId.startsWith("C")) {
+                        System.out.println("User is customer.");
+                        CategoryProductGUI.main(args);  // Open CategoryProduct GUI
+                    } else {
+                        System.out.println("Unknown user type.");
+                    }
+
                     return true;
                 } else {
                     System.out.println("Incorrect password!");
@@ -123,6 +130,6 @@ public class LoginGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginGUI::new);  // Run the login GUI on the Event Dispatch Thread
+        SwingUtilities.invokeLater(LoginGUI::new);
     }
 }
