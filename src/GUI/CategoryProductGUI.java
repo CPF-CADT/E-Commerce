@@ -20,6 +20,7 @@ public class CategoryProductGUI extends JFrame {
     private static String userId;
 
     private static List<Product> cart = new ArrayList<>();  // Cart to store the selected products
+    private static double totalPrice = 0.0;  // Calculate the total price here
     private static int selectedQuantity = 1;  // Default quantity when adding to the cart
 
     public static void main(String[] args) {
@@ -120,8 +121,8 @@ public class CategoryProductGUI extends JFrame {
         loadCategories();
 
         proceedToPaymentButton.addActionListener(e -> {
-            double total = calculateTotal();  // Calculate the total price
-            PaymentGUI paymentWindow = new PaymentGUI(cart, total);  // Pass the cart and total price to PaymentGUI
+            // Send the total price and cart to PaymentGUI
+            PaymentGUI paymentWindow = new PaymentGUI(cart, totalPrice);
             paymentWindow.setVisible(true);  // Display the payment window
         });
 
@@ -185,14 +186,6 @@ public class CategoryProductGUI extends JFrame {
         frame.setVisible(true);
     }
 
-    private static double calculateTotal() {
-        double total = 0.0;
-        for (Product product : cart) {
-            total += product.getPrice() * selectedQuantity;  // Add quantity to the calculation
-        }
-        return total;
-    }
-
     private static void loadCategories() {
         categoryListModel.clear();
         productListModel.clear();
@@ -211,10 +204,10 @@ public class CategoryProductGUI extends JFrame {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, 
-                "Error loading categories: " + e.getMessage(), 
-                "Database Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "Error loading categories: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -231,12 +224,12 @@ public class CategoryProductGUI extends JFrame {
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         Product product = new Product(
-                            rs.getString("productId"),
-                            rs.getString("name"),
-                            rs.getDouble("price"),
-                            rs.getInt("stock"),
-                            rs.getString("categoryId"),
-                            rs.getString("description")
+                                rs.getString("productId"),
+                                rs.getString("name"),
+                                rs.getDouble("price"),
+                                rs.getInt("stock"),
+                                rs.getString("categoryId"),
+                                rs.getString("description")
                         );
                         products.add(product);
                     }
@@ -253,76 +246,86 @@ public class CategoryProductGUI extends JFrame {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, 
-                "Error retrieving products by category: " + e.getMessage(),
-                "Database Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,
+                    "Error retrieving products by category: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private static void displayProductDetails(String productName) {
         try (Connection conn = MySQLConnection.getConnection()) {
-            String productQuery = "SELECT * FROM Product WHERE name = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
+            String sql = "SELECT * FROM Product WHERE name = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, productName);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        StringBuilder details = new StringBuilder();
-                        details.append("Product ID: ").append(rs.getString("productId")).append("\n\n");
-                        details.append("Name: ").append(rs.getString("name")).append("\n\n");
-                        details.append("Price: $").append(rs.getDouble("price")).append("\n\n");
-                        details.append("Stock: ").append(rs.getInt("stock")).append("\n\n");
-                        details.append("Description: ").append(rs.getString("description")).append("\n");
+                        Product product = new Product(
+                                rs.getString("productId"),
+                                rs.getString("name"),
+                                rs.getDouble("price"),
+                                rs.getInt("stock"),
+                                rs.getString("categoryId"),
+                                rs.getString("description")
+                        );
 
-                        productDetailsArea.setText(details.toString());
+                        productDetailsArea.setText("Product: " + product.getName() +
+                                "\nPrice: $" + product.getPrice() +
+                                "\nDescription: " + product.getDescription());
+                    } else {
+                        productDetailsArea.setText("No product found.");
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, 
-                "Error displaying product details: " + e.getMessage(), 
-                "Database Error", 
-                JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private static void addToCart(String productName, int quantity) {
         try (Connection conn = MySQLConnection.getConnection()) {
-            String productQuery = "SELECT * FROM Product WHERE name = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
+            String sql = "SELECT * FROM Product WHERE name = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, productName);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
+                        double price = rs.getDouble("price");
                         Product product = new Product(
-                            rs.getString("productId"),
-                            rs.getString("name"),
-                            rs.getDouble("price"),
-                            rs.getInt("stock"),
-                            rs.getString("categoryId"),
-                            rs.getString("description")
+                                rs.getString("productId"),
+                                rs.getString("name"),
+                                price,
+                                quantity,
+                                rs.getString("categoryId"),
+                                rs.getString("description")
                         );
-
-                        String cartId = userId; // Assuming the user is a customer with the same userId
-                        String addCartQuery = "INSERT INTO Cart(cartId, productId, quantity) VALUES(?, ?, ?)";
-
-                        try (PreparedStatement addStmt = conn.prepareStatement(addCartQuery)) {
-                            addStmt.setString(1, cartId);
-                            addStmt.setString(2, product.getProductId());
-                            addStmt.setInt(3, quantity);
-                            addStmt.executeUpdate();
-                        }
-
                         cart.add(product);
+                        totalPrice += price * quantity;  // Update total price
+
+                        // Update stock after adding to cart
+                        updateStock(product.getProductId(), quantity);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, 
-                "Error adding product to cart: " + e.getMessage(), 
-                "Database Error", 
-                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void updateStock(String productId, int quantitySold) {
+        // Update the stock in the database after purchase
+        try (Connection conn = MySQLConnection.getConnection()) {
+            String sql = "UPDATE Product SET stock = stock - ? WHERE productId = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, quantitySold);
+                stmt.setString(2, productId);
+                stmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Error updating stock: " + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

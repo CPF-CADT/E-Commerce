@@ -11,13 +11,13 @@ import utils.Product;
 
 public class PaymentGUI extends JFrame {
     private JComboBox<String> productComboBox;
-    protected JLabel totalPriceLabel, totalLabel;
+    protected JLabel totalPriceLabel;
     private JButton cashPaymentButton, qrPaymentButton;
     protected double totalPrice = 0.0;
     private java.util.List<Product> cart = new java.util.ArrayList<>();
     
-    private static final String QR_IMAGE_PATH = "/Resource/payment_qr.png"; 
-    
+    private static final String QR_IMAGE_PATH = "/Resource/payment_qr.png"; // Ensure correct path
+
     // Constructor
     public PaymentGUI(java.util.List<Product> cart, double totalPrice) {
         this.cart = cart;
@@ -54,16 +54,7 @@ public class PaymentGUI extends JFrame {
         setVisible(true);
     }
 
-    // Calculate total for cart
-    private void calculateTotal(int quantity) {
-        double total = 0;
-        for (Product product : cart) {
-            total += product.getPrice() * quantity; // Multiply by quantity
-        }
-        totalLabel.setText("Total: $" + String.format("%.2f", total));
-    }
-
-    // Load products from DB into ComboBox
+    // Load products from database into ComboBox
     private void loadProducts() {
         String sql = "SELECT name FROM Product";
         try (Connection conn = MySQLConnection.getConnection();
@@ -78,19 +69,32 @@ public class PaymentGUI extends JFrame {
         }
     }
 
-    // Update the total price based on the selected product
+    // Update total price when product is selected
     private void updateTotalPrice() {
         String selectedProduct = (String) productComboBox.getSelectedItem();
         if (selectedProduct != null) {
-            Product product = Product.getProductsByCategory(selectedProduct).get(0);
-            totalPrice = product.getPrice();
-            totalPriceLabel.setText("Total Price: $" + totalPrice);
+            try (Connection conn = MySQLConnection.getConnection()) {
+                String sql = "SELECT price FROM Product WHERE name = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, selectedProduct);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            totalPrice = rs.getDouble("price");
+                            totalPriceLabel.setText("Total Price: $" + String.format("%.2f", totalPrice));
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Product not found in database!", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error fetching product price: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     // Process payment based on method (Cash or QR)
     private void processPayment(String method) {
-        JOptionPane.showMessageDialog(this, "Payment of $" + totalPrice + " received via " + method + ".");
+        JOptionPane.showMessageDialog(this, "Payment of $" + String.format("%.2f", totalPrice) + " received via " + method + ".");
         showPaymentComplete();
     }
 
@@ -129,7 +133,7 @@ public class PaymentGUI extends JFrame {
         return (imgURL != null) ? new ImageIcon(imgURL) : null;
     }
 
-    // Main method to run the PaymentGUI
+    // Main method to test PaymentGUI
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             // Dummy data to test PaymentGUI
@@ -139,7 +143,7 @@ public class PaymentGUI extends JFrame {
             
             double totalPrice = 0.0;
             for (Product product : cart) {
-                totalPrice += product.getPrice() * 1;
+                totalPrice += product.getPrice();
             }
             
             new PaymentGUI(cart, totalPrice);
