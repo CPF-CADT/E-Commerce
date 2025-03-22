@@ -14,7 +14,7 @@ public class Product {
     private int stock;
 
     // Store products in a HashMap for quick retrieval by ID
-    private static final HashMap<String, Product> productsById = new HashMap<>();
+    protected static final HashMap<String, Product> productsById = new HashMap<>();
 
     public Product(String productId, String name, double price, int stock, String categoryId, String description) {
         this.productId = productId;

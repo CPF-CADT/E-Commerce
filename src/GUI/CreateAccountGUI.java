@@ -60,10 +60,12 @@ public class CreateAccountGUI {
             addLabelAndField("Phone Number:", phoneField, formPanel, gbc, 10);
             addLabelAndField("Date of Birth:", dateOfBirthField, formPanel, gbc, 11);
             addLabelAndField("Position (if Staff):", positionField, formPanel, gbc, 12);
+            formPanel.getComponent(formPanel.getComponentCount() - 2).setVisible(false);
             positionField.setVisible(false);
             
             userTypeComboBox.addActionListener(e -> {
                 positionField.setVisible("Staff".equals(userTypeComboBox.getSelectedItem()));
+                formPanel.getComponent(formPanel.getComponentCount() - 3).setVisible("Staff".equals(userTypeComboBox.getSelectedItem()));
                 frame.revalidate();
             });
             

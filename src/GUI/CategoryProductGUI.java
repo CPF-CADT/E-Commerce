@@ -17,15 +17,14 @@ public class CategoryProductGUI extends JFrame {
     private static JList<String> categoryList;
     private static JList<String> productList;
     private static JTextArea productDetailsArea;
-    // private static String userId;
+    private static String userId;
 
     private static List<Product> cart = new ArrayList<>();  // Cart to store the selected products
     private static int selectedQuantity = 1;  // Default quantity when adding to the cart
 
     public static void main(String[] args) {
-
         if (args != null && args.length > 0) {
-            userId = args[0];  // Assuming the userId is passed as an argument
+            userId = args[0];
         }
         SwingUtilities.invokeLater(CategoryProductGUI::createGUI);
     }
@@ -103,16 +102,13 @@ public class CategoryProductGUI extends JFrame {
         // Add buttons for quantity control and adding to cart
         JButton increaseQuantityButton = new JButton("+");
         JButton decreaseQuantityButton = new JButton("-");
+
         JButton addToCartButton = new JButton("Add to Cart");
 
         buttonPanel.add(decreaseQuantityButton);
         buttonPanel.add(increaseQuantityButton);
         buttonPanel.add(new JLabel("Quantity:"));
         buttonPanel.add(addToCartButton);
-
-        // View Cart button
-        JButton viewCartButton = new JButton("View Cart");
-        buttonPanel.add(viewCartButton);
 
         // Proceed to Payment button
         JButton proceedToPaymentButton = new JButton("Proceed to Payment");
@@ -123,7 +119,11 @@ public class CategoryProductGUI extends JFrame {
         // Load categories from database
         loadCategories();
 
-        frame.setVisible(true);
+        proceedToPaymentButton.addActionListener(e -> {
+            double total = calculateTotal();  // Calculate the total price
+            PaymentGUI paymentWindow = new PaymentGUI(cart, total);  // Pass the cart and total price to PaymentGUI
+            paymentWindow.setVisible(true);  // Display the payment window
+        });
 
         // Add event listeners
         categoryList.addListSelectionListener(new ListSelectionListener() {
@@ -131,10 +131,8 @@ public class CategoryProductGUI extends JFrame {
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     String selectedCategory = categoryList.getSelectedValue();
-                    System.out.println("Selected category: " + selectedCategory);
                     if (selectedCategory != null) {
                         loadProductsByCategory(selectedCategory);
-                        System.out.println("Products loaded for category: " + selectedCategory);
                     }
                 }
             }
@@ -152,7 +150,7 @@ public class CategoryProductGUI extends JFrame {
             }
         });
 
-        refreshButton.addActionListener(e -> CategoryProductGUI.loadCategories());
+        refreshButton.addActionListener(e -> loadCategories());
 
         exitButton.addActionListener(e -> {
             MySQLConnection.closeConnection();
@@ -184,21 +182,15 @@ public class CategoryProductGUI extends JFrame {
             }
         });
 
-        // View Cart Button
-        viewCartButton.addActionListener(e -> {
-            // Open the cart window (for example, CartGUI)
-            CartGUI cartWindow = new CartGUI();
-            cartWindow.setVisible(true);
-        });
-
-        // Proceed to Payment Button
-        proceedToPaymentButton.addActionListener(e -> {
-            // Open the PaymentGUI when the button is clicked
-            PaymentGUI paymentWindow = new PaymentGUI();
-            paymentWindow.setVisible(true);
-        });
-
         frame.setVisible(true);
+    }
+
+    private static double calculateTotal() {
+        double total = 0.0;
+        for (Product product : cart) {
+            total += product.getPrice() * selectedQuantity;  // Add quantity to the calculation
+        }
+        return total;
     }
 
     private static void loadCategories() {
@@ -229,56 +221,40 @@ public class CategoryProductGUI extends JFrame {
     private static void loadProductsByCategory(String categoryName) {
         productListModel.clear();
         productDetailsArea.setText("");
-    
+
+        List<Product> products = new ArrayList<>();
+
         try (Connection conn = MySQLConnection.getConnection()) {
-            // Check if connection is valid
-            if (conn == null || conn.isClosed()) {
-                JOptionPane.showMessageDialog(null, 
-                    "Error: Unable to establish a database connection.",
-                    "Database Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-    
-            // Get the categoryId from the categoryName
-            String categoryIdQuery = "SELECT categoryId FROM Category WHERE name = ?";
-            String categoryId = null;
-            
-            try (PreparedStatement pstmt = conn.prepareStatement(categoryIdQuery)) {
-                pstmt.setString(1, categoryName);
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        categoryId = rs.getString("categoryId");
-                    }
-                }
-            }
-            
-            if (categoryId == null) {
-                productListModel.addElement("No products found");
-                return;
-            }
-            
-            // Get products for the selected category
-            String productsQuery = "SELECT * FROM Product WHERE categoryId = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(productsQuery)) {
-                pstmt.setString(1, categoryId);
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    boolean hasProducts = false;
+            String sql = "SELECT * FROM Product WHERE categoryId = (SELECT categoryId FROM Category WHERE name = ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, categoryName);
+                try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        hasProducts = true;
-                        String productName = rs.getString("name");
-                        productListModel.addElement(productName);
-                    }
-                    
-                    if (!hasProducts) {
-                        productListModel.addElement("No products found");
+                        Product product = new Product(
+                            rs.getString("productId"),
+                            rs.getString("name"),
+                            rs.getDouble("price"),
+                            rs.getInt("stock"),
+                            rs.getString("categoryId"),
+                            rs.getString("description")
+                        );
+                        products.add(product);
                     }
                 }
             }
+
+            if (products.isEmpty()) {
+                productListModel.addElement("No products found");
+            } else {
+                for (Product product : products) {
+                    productListModel.addElement(product.getName());
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, 
-                "Error loading products: " + e.getMessage(), 
+                "Error retrieving products by category: " + e.getMessage(),
                 "Database Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
@@ -312,15 +288,6 @@ public class CategoryProductGUI extends JFrame {
     }
 
     private static void addToCart(String productName, int quantity) {
-        // Check if userId is valid
-        if (userId == null || userId.isEmpty()) {
-            JOptionPane.showMessageDialog(null,
-                    "Error: User is not logged in. Please log in before adding products to the cart.",
-                    "User Not Logged In",
-                    JOptionPane.ERROR_MESSAGE);
-            return; // Stop the process if user is not logged in
-        }
-
         try (Connection conn = MySQLConnection.getConnection()) {
             String productQuery = "SELECT * FROM Product WHERE name = ?";
             try (PreparedStatement stmt = conn.prepareStatement(productQuery)) {
@@ -328,24 +295,25 @@ public class CategoryProductGUI extends JFrame {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         Product product = new Product(
-                                rs.getString("productId"),
-                                rs.getString("name"),
-                                rs.getDouble("price"),
-                                rs.getInt("stock"),
-                                rs.getString("categoryId"),
-                                rs.getString("description")
+                            rs.getString("productId"),
+                            rs.getString("name"),
+                            rs.getDouble("price"),
+                            rs.getInt("stock"),
+                            rs.getString("categoryId"),
+                            rs.getString("description")
                         );
 
+                        String cartId = userId; // Assuming the user is a customer with the same userId
                         String addCartQuery = "INSERT INTO Cart(cartId, productId, quantity) VALUES(?, ?, ?)";
+
                         try (PreparedStatement addStmt = conn.prepareStatement(addCartQuery)) {
-                            addStmt.setString(1, userId);  // Use userId as cartId
+                            addStmt.setString(1, cartId);
                             addStmt.setString(2, product.getProductId());
                             addStmt.setInt(3, quantity);
                             addStmt.executeUpdate();
                         }
 
                         cart.add(product);
-                        JOptionPane.showMessageDialog(null, "Product added to cart with quantity: " + quantity);
                     }
                 }
             }

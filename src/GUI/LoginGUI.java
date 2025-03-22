@@ -25,21 +25,29 @@ public class LoginGUI extends JFrame {
         titleLabel.setForeground(Color.BLACK);
         panel.add(titleLabel);
 
-        JTextField emailField = new JTextField("Email");
-        emailField.setBounds(250, 100, 250, 45);
-        emailField.setBackground(Color.WHITE);
-        emailField.setForeground(Color.DARK_GRAY);
-        emailField.setFont(new Font("Arial", Font.PLAIN, 18));
-        emailField.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
-        panel.add(emailField);
+        JPanel emailPanel = new JPanel(new BorderLayout(10, 10));
+        emailPanel.setBounds(250, 100, 250, 45);
+        emailPanel.setBackground(Color.WHITE);
+        emailPanel.setForeground(Color.DARK_GRAY);
+        emailPanel.setFont(new Font("Arial", Font.PLAIN, 18));
+        emailPanel.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
+        JLabel emailLabel = new JLabel("Email");
+        JTextField emailField = new JTextField();
+        emailPanel.add(emailLabel, BorderLayout.WEST);
+        emailPanel.add(emailField, BorderLayout.CENTER);
+        panel.add(emailPanel);
 
-        JPasswordField passwordField = new JPasswordField("Password");
-        passwordField.setBounds(250, 160, 250, 45);
-        passwordField.setBackground(Color.WHITE);
-        passwordField.setForeground(Color.DARK_GRAY);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 18));
-        passwordField.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
-        panel.add(passwordField);
+        JPanel passwordPanel = new JPanel(new BorderLayout(10, 10));
+        passwordPanel.setBounds(250, 160, 250, 45);
+        passwordPanel.setBackground(Color.WHITE);
+        passwordPanel.setForeground(Color.DARK_GRAY);
+        passwordPanel.setFont(new Font("Arial", Font.PLAIN, 18));
+        passwordPanel.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2));
+        JLabel passwordLabel = new JLabel("Password");
+        JPasswordField passwordField = new JPasswordField();
+        passwordPanel.add(passwordLabel, BorderLayout.WEST);
+        passwordPanel.add(passwordField, BorderLayout.CENTER);
+        panel.add(passwordPanel);
 
         JButton loginButton = new JButton("Login");
         loginButton.setBounds(250, 220, 250, 45);
@@ -61,7 +69,7 @@ public class LoginGUI extends JFrame {
         });
 
         JButton createAccountButton = new JButton("Don't have an account? Create one");
-        createAccountButton.setBounds(250, 290, 250, 45);
+        createAccountButton.setBounds(250, 290, 300, 45);
         createAccountButton.setBackground(new Color(0, 255, 255));
         createAccountButton.setForeground(Color.BLACK);
         createAccountButton.setFont(new Font("Arial", Font.BOLD, 16));

@@ -7,16 +7,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.*;
+import utils.Product;
 
 public class PaymentGUI extends JFrame {
     private JComboBox<String> productComboBox;
-    private JLabel totalPriceLabel;
+    protected JLabel totalPriceLabel, totalLabel;
     private JButton cashPaymentButton, qrPaymentButton;
-    private double totalPrice = 0.0;
+    protected double totalPrice = 0.0;
+    private java.util.List<Product> cart = new java.util.ArrayList<>();
     
-    private static final String QR_IMAGE_PATH = "/Resource/payment_qr.png";  
-
-    public PaymentGUI() {
+    private static final String QR_IMAGE_PATH = "/Resource/payment_qr.png"; 
+    
+    // Constructor
+    public PaymentGUI(java.util.List<Product> cart, double totalPrice) {
+        this.cart = cart;
+        this.totalPrice = totalPrice;
+        
         setTitle("Payment System");
         setSize(400, 350);
         setLayout(new GridLayout(4, 1));
@@ -44,10 +50,20 @@ public class PaymentGUI extends JFrame {
         // QR payment action
         qrPaymentButton.addActionListener(e -> generateQRCode());
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
     }
 
+    // Calculate total for cart
+    private void calculateTotal(int quantity) {
+        double total = 0;
+        for (Product product : cart) {
+            total += product.getPrice() * quantity; // Multiply by quantity
+        }
+        totalLabel.setText("Total: $" + String.format("%.2f", total));
+    }
+
+    // Load products from DB into ComboBox
     private void loadProducts() {
         String sql = "SELECT name FROM Product";
         try (Connection conn = MySQLConnection.getConnection();
@@ -62,6 +78,7 @@ public class PaymentGUI extends JFrame {
         }
     }
 
+    // Update the total price based on the selected product
     private void updateTotalPrice() {
         String selectedProduct = (String) productComboBox.getSelectedItem();
         if (selectedProduct != null) {
@@ -71,11 +88,13 @@ public class PaymentGUI extends JFrame {
         }
     }
 
+    // Process payment based on method (Cash or QR)
     private void processPayment(String method) {
         JOptionPane.showMessageDialog(this, "Payment of $" + totalPrice + " received via " + method + ".");
         showPaymentComplete();
     }
 
+    // Generate QR code for payment
     private void generateQRCode() {
         ImageIcon qrIcon = loadImageIcon(QR_IMAGE_PATH);
         if (qrIcon == null) {
@@ -91,6 +110,7 @@ public class PaymentGUI extends JFrame {
         }
     }
 
+    // Display payment success message
     private void showPaymentComplete() {
         getContentPane().removeAll();
         JLabel successLabel = new JLabel("Payment Successful!", SwingConstants.CENTER);
@@ -103,12 +123,26 @@ public class PaymentGUI extends JFrame {
         repaint();
     }
 
+    // Load image icon for QR code
     private ImageIcon loadImageIcon(String path) {
         java.net.URL imgURL = getClass().getResource(path);
         return (imgURL != null) ? new ImageIcon(imgURL) : null;
     }
 
+    // Main method to run the PaymentGUI
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(PaymentGUI::new);
+        SwingUtilities.invokeLater(() -> {
+            // Dummy data to test PaymentGUI
+            java.util.List<Product> cart = new java.util.ArrayList<>();
+            cart.add(new Product("1", "Product 1", 20.0, 2, "1", "Description of Product 1"));
+            cart.add(new Product("2", "Product 2", 30.0, 1, "1", "Description of Product 2"));
+            
+            double totalPrice = 0.0;
+            for (Product product : cart) {
+                totalPrice += product.getPrice() * 1;
+            }
+            
+            new PaymentGUI(cart, totalPrice);
+        });
     }
 }
