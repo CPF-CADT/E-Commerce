@@ -50,12 +50,15 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   
   private static Color linkWater = new Color(237, 242, 250);
 
+  JPanel main;
+
   JComboBox view;
   JComboBox sort;
   JRadioButton deleteButton;
   JRadioButton editButton;
   JCheckBox check;
   JTextField search;
+  JScrollPane dataScrollPane;
 
   JButton deleteSelect; 
 
@@ -65,7 +68,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     JPanel header = new JPanel(new GridLayout(2, 1));
     JPanel topHeader = new JPanel(new GridLayout(1, 4, 10, 0));
     JPanel lowHeader = new JPanel(new GridLayout(1, 2, 10, 0));
-    JPanel main = new JPanel(new BorderLayout());
+    main = new JPanel(new BorderLayout());
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
 
     /* -------------------- Upper Header -------------------- */
@@ -99,8 +102,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
     /* -------------------- Main -------------------- */
 
-    // main.add(new JScrollBar(), BorderLayout.EAST);
-    main.add(mainPanel('C'));
+    main.add(new JScrollPane(mainPanel('C'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
     /* -------------------- Footer -------------------- */
     
@@ -138,13 +140,13 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
     switch (option) {
       case 'C':
-        query = "SELECT c.customerId, u.firstname, u.lastname FROM customer c JOIN user u ON c.customerId = u.userId";
+        query = "SELECT c.customerId as id, CONCAT(u.firstname, ' ', u.lastname) as name FROM customer c JOIN user u ON c.customerId = u.userId";
         break;
       case 'S':
-        query = "SELECT s.staffId, u.firstname, u.lastname FROM staff s JOIN user u ON s.staffId = u.userId";
+        query = "SELECT s.staffId as id, CONCAT(u.firstname, ' ', u.lastname) as name FROM staff s JOIN user u ON s.staffId = u.userId";
         break;
       case 'P':
-        query = "SELECT p.productId, p.name FROM product p";
+        query = "SELECT p.productId as id, p.name FROM product p";
         break;
     }
     
@@ -152,7 +154,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
       ResultSet result = preparedStatement.executeQuery();
       for (boolean i = false; result.next(); i = !i) {
-        panel.add(Style.listPanel(new String[]{result.getString("customerId") + result.getString("firstname") + result.getString("lastname")}, i));
+        panel.add(Style.listPanel(new String[]{result.getString("id"), result.getString("name")}, i));
       }
     } catch (SQLException e) {
       JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
@@ -171,20 +173,21 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   public void actionPerformed(ActionEvent e) {
 
     if (e.getSource() == view) {
+
+      main.revalidate();
+      main.remove(0);
+      
       switch (view.getSelectedIndex()) {
         case 0:
-          System.out.println(view.getSelectedItem());
+          main.add(new JScrollPane(mainPanel('C'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
 
         case 1:
-          System.out.println(view.getSelectedItem());
+          main.add(new JScrollPane(mainPanel('S'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
 
         case 2:
-          System.out.println(view.getSelectedItem());
-          break;
-
-        default:
+          main.add(new JScrollPane(mainPanel('P'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
       }
 
