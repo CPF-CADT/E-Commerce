@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +21,7 @@ import javax.swing.*;
 import Database.MySQLConnection;
 
 @SuppressWarnings("rawtypes") // Remove JComboBox warning
-public class AdminGUI extends JPanel implements ActionListener, KeyListener {
+public class AdminGUI extends JPanel implements ActionListener, KeyListener, MouseListener {
 
   public static void main(String[] args) {
 
@@ -48,6 +50,11 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   private static ImageIcon selected = new ImageIcon(
       new ImageIcon("src/GUI/Resources/selected.png").getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT));
   
+    /* -------------------- Variable Define -------------------- */
+  private final char CUSTOMER = 'C', STAFF = 'S', PRODUCT = 'P';
+  private final char DEFAULT = ' ', ASCENDING = 'A', DESCENDING = 'D';
+  private char currentView = CUSTOMER, currentSort = DEFAULT;
+  private String currentSearch = null;
   private static Color linkWater = new Color(237, 242, 250);
 
   JPanel main;
@@ -81,6 +88,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     deleteButton.addActionListener(this);
 
     editButton = Style.radioButton("Edit");
+    editButton.setSelected(true);
     editButton.addActionListener(this);
 
     ButtonGroup option = new ButtonGroup();
@@ -93,7 +101,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
     /* -------------------- Lower Header -------------------- */
     
-    String[] viewSort = { "Ascending", "Descending" };
+    String[] viewSort = { "Default", "Ascending", "Descending" };
     sort = Style.comboBox(viewSort);
     sort.addActionListener(this);
 
@@ -102,7 +110,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
     /* -------------------- Main -------------------- */
 
-    main.add(new JScrollPane(mainPanel('C'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+    main.add(new JScrollPane(mainPanel(currentView, currentSort, currentSearch), 
+      ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
     /* -------------------- Footer -------------------- */
     
@@ -134,27 +143,53 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     this.add(footer, BorderLayout.SOUTH);
   }
 
-  private static JPanel mainPanel (char option) {
+  private JPanel mainPanel (char option, char sortBy, String searchString) {
     JPanel panel = new JPanel(new GridLayout(0, 1, 0, 10));
     String query = new String();
 
     switch (option) {
-      case 'C':
+      case CUSTOMER:
         query = "SELECT c.customerId as id, CONCAT(u.firstname, ' ', u.lastname) as name FROM customer c JOIN user u ON c.customerId = u.userId";
         break;
-      case 'S':
+      case STAFF:
         query = "SELECT s.staffId as id, CONCAT(u.firstname, ' ', u.lastname) as name FROM staff s JOIN user u ON s.staffId = u.userId";
         break;
-      case 'P':
+      case PRODUCT:
         query = "SELECT p.productId as id, p.name FROM product p";
+        break;
+    }
+
+    if (searchString != null) {
+      if (option == CUSTOMER || option == STAFF) {
+        query += " WHERE CONCAT(u.firstname, ' ', u.lastname) LIKE ?";
+      } else if (option == PRODUCT) {
+        query += " WHERE name LIKE ?";
+      }
+    }
+
+    switch (sortBy) {
+      case 'A':
+        query += " ORDER BY name ASC";
+        break;
+    
+      case 'D':
+        query += " ORDER BY name DESC";
         break;
     }
     
     Connection connection = MySQLConnection.getConnection();
     try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+      if (searchString != null 
+      && ((option == CUSTOMER || option == STAFF) 
+      || (option == PRODUCT))) {
+        preparedStatement.setString(1, '%' + searchString + '%');
+      }
       ResultSet result = preparedStatement.executeQuery();
-      for (boolean i = false; result.next(); i = !i) {
-        panel.add(Style.listPanel(new String[]{result.getString("id"), result.getString("name")}, i));
+      System.out.println(preparedStatement);
+      for (boolean alternateColor = false; result.next(); alternateColor = !alternateColor) {
+        JPanel list = Style.listPanel(new String[]{result.getString("id"), result.getString("name")}, alternateColor);
+        list.addMouseListener(null);
+        panel.add(list);
       }
     } catch (SQLException e) {
       JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
@@ -173,21 +208,23 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   public void actionPerformed(ActionEvent e) {
 
     if (e.getSource() == view) {
-
       main.revalidate();
       main.remove(0);
       
       switch (view.getSelectedIndex()) {
         case 0:
-          main.add(new JScrollPane(mainPanel('C'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+          main.add(new JScrollPane(mainPanel(currentView = CUSTOMER, currentSort, currentSearch), 
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
 
         case 1:
-          main.add(new JScrollPane(mainPanel('S'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+          main.add(new JScrollPane(mainPanel(currentView = STAFF, currentSort, currentSearch), 
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
 
         case 2:
-          main.add(new JScrollPane(mainPanel('P'), ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+          main.add(new JScrollPane(mainPanel(currentView = PRODUCT, currentSort, currentSearch), 
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
       }
 
@@ -212,16 +249,23 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       System.out.println(check.isSelected());
 
     } else if (e.getSource() == sort) {
+      main.revalidate();
+      main.remove(0);
+      
       switch (sort.getSelectedIndex()) {
         case 0:
-          System.out.println(sort.getSelectedItem());
+          main.add(new JScrollPane(mainPanel(currentView, currentSort = DEFAULT, currentSearch), 
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
 
         case 1:
-          System.out.println(sort.getSelectedItem());
+          main.add(new JScrollPane(mainPanel(currentView, currentSort = ASCENDING, currentSearch), 
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
 
-        default:
+        case 2:
+          main.add(new JScrollPane(mainPanel(currentView, currentSort = DESCENDING, currentSearch), 
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
           break;
       }
 
@@ -243,9 +287,49 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   @Override
   public void keyReleased(KeyEvent e) {
 
-    if (e.getSource() == search && !prevText.equals(prevText = search.getText())) {
-      System.out.println(search.getText());
+    if (e.getSource() == search ) {
+      main.revalidate();
+      if (!prevText.equals(prevText = search.getText()) 
+      && search.getText().matches("^(?=.*\\S)([a-zA-Z]+(\\s+[a-zA-Z]+)*)?$")) {
+        main.remove(0);
+        main.add(new JScrollPane(mainPanel(currentView, currentSort, currentSearch = search.getText()), 
+          ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+      } else if (!search.getText().matches("^(?=.*\\S)([a-zA-Z]+(\\s+[a-zA-Z]+)*)?$")) {
+        main.remove(0);
+        main.add(new JScrollPane(mainPanel(currentView, currentSort, currentSearch = null), 
+          ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+      }
     }
+  }
+
+  @Override
+  public void mouseClicked(MouseEvent e) {
+    
+
+  }
+
+  @Override
+  public void mousePressed(MouseEvent e) {
+    
+
+  }
+
+  @Override
+  public void mouseReleased(MouseEvent e) {
+    
+
+  }
+
+  @Override
+  public void mouseEntered(MouseEvent e) {
+    
+
+  }
+
+  @Override
+  public void mouseExited(MouseEvent e) {
+    
+
   }
 
   private static class Style {
@@ -290,14 +374,53 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     }
 
     private static JPanel listPanel (String[] label, boolean color) {
-      JPanel style = new JPanel(new FlowLayout());
+      JPanel style = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 0));
       for (String word : label) {
         style.add(new JLabel(word));
       }
       if (color) {
         style.setBackground(Color.LIGHT_GRAY);
+      } else {
+        style.setBackground(Color.WHITE);
       }
-      style.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+      style.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
+      style.addMouseListener(new MouseListener() {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          style.setBackground(Color.GREEN);
+
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+          style.setBackground(style.getBackground().darker());
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+          if (color) {
+            style.setBackground(Color.LIGHT_GRAY);
+          } else {
+            style.setBackground(Color.WHITE);
+          }
+
+        }
+        
+      });
 
       return style;
     }
