@@ -269,9 +269,11 @@ public class CategoryProductGUI extends JFrame {
                                 rs.getString("description")
                         );
 
+                        // Display product details including stock/quantity available
                         productDetailsArea.setText("Product: " + product.getName() +
                                 "\nPrice: $" + product.getPrice() +
-                                "\nDescription: " + product.getDescription());
+                                "\nDescription: " + product.getDescription() +
+                                "\nAvailable Quantity: " + product.getStock());
                     } else {
                         productDetailsArea.setText("No product found.");
                     }
@@ -322,10 +324,6 @@ public class CategoryProductGUI extends JFrame {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
-                    "Error updating stock: " + e.getMessage(),
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

@@ -61,8 +61,7 @@ public class LoginGUI extends JFrame {
             String password = new String(passwordField.getPassword());
             boolean loginSuccess = validateLogin(email, password);
             if (loginSuccess) {
-                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();  // Close login window
+                this.dispose();  // Close the login window immediately without success message
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid email or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
