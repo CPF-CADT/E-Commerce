@@ -90,7 +90,3 @@ VALUES
 INSERT INTO Shipping (shippingId, orderId, shippingDate, deliveryDate, carrier, trackingNumber, status, shippingAddress)
 VALUES
 ('SH001', 'O001', '2025-03-02', '2025-03-05', 'FedEx', 'TRACK12345', 'IN TRANSIT', '303 Birch St, San Francisco, CA, 94101');
-
-
-
-
