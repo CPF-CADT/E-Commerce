@@ -381,6 +381,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       switch (JOptionPane.showConfirmDialog(null, "Are you sure?", "Delete Confirmation", JOptionPane.YES_NO_OPTION)) {
         case 0:
           for (String id : deleteList) { delete(id); }
+          deleteList.clear();
           refreshMain();
           break;
       }
