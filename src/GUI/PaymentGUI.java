@@ -53,6 +53,7 @@ public class PaymentGUI extends JFrame {
         cartTextArea.setText("");  // Clear previous content
         for (Product product : cart) {
             cartTextArea.append(product.getName() + " (Qty: " + product.getStock() + ")\n");
+            cartTextArea.append("Price: $" + product.getPrice() + "\n\n");
         }
     }
 
@@ -86,6 +87,12 @@ public class PaymentGUI extends JFrame {
 
         revalidate();
         repaint();
+
+        Timer timer = new Timer(3000, e -> {
+            dispose();  // Close the window
+        });
+        timer.setRepeats(false);  // Only run once
+        timer.start();
     }
 
     private ImageIcon loadImageIcon(String path) {
