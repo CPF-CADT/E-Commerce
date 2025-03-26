@@ -3,8 +3,12 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -59,6 +63,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   private LinkedList<String> deleteList = new LinkedList<>();
   private static Color linkWater = new Color(237, 242, 250);
 
+  JPanel wholePanel;
   JPanel main;
 
   JComboBox view;
@@ -70,6 +75,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   JScrollPane dataScrollPane;
 
   JButton deleteSelect; 
+  JButton cancel; 
+  JButton update; 
 
   String prevText = new String(); // For keypress event
 
@@ -107,7 +114,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     sort = Style.comboBox(viewSort);
     sort.addActionListener(this);
 
-    search = Style.textField("Enter to search");
+    search = Style.textField("");
     search.addKeyListener(this);
 
     /* -------------------- Main -------------------- */
@@ -130,7 +137,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     topHeader.setOpaque(false);
 
     lowHeader.add(sort);
-    lowHeader.add(search);
+    lowHeader.add(Style.textLabel("Search", search));
     lowHeader.setOpaque(false);
 
     header.add(topHeader);
@@ -140,11 +147,14 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     footer.add(deleteSelect);
     footer.setBackground(linkWater);
 
-    this.setLayout(new BorderLayout());
-    this.setBackground(new Color(255, 255, 255));
-    this.add(header, BorderLayout.NORTH);
-    this.add(main, BorderLayout.CENTER);
-    this.add(footer, BorderLayout.SOUTH);
+    wholePanel = new JPanel(new BorderLayout());
+    wholePanel.setBackground(new Color(255, 255, 255));
+    wholePanel.add(header, BorderLayout.NORTH);
+    wholePanel.add(main, BorderLayout.CENTER);
+    wholePanel.add(footer, BorderLayout.SOUTH);
+
+    this.setLayout(new GridLayout());
+    this.add(wholePanel);
   }
 
   private JPanel mainPanel () {
@@ -270,8 +280,9 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
                 break;
             }
           }
+        } else if (editButton.isSelected()) {
+          pageSwitch(label[0]);
         }
-        System.out.println(deleteList);
       }
 
       @Override
@@ -309,6 +320,98 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     });
 
     return style;
+  }
+
+  private JPanel editPanel(String id) {
+    JPanel panel = new JPanel(new BorderLayout(10, 10));
+    JPanel info = new JPanel(new GridBagLayout());
+    JPanel footPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+    GridBagConstraints gridBag = new GridBagConstraints();
+    gridBag.insets = new Insets(5, 5, 5, 5);
+    String query = "";
+
+    cancel = Style.button("Cancel");
+    cancel.addActionListener(this);
+    update = Style.button("Save changes");
+    update.addActionListener(this);
+
+    switch (id.charAt(0)) {
+        case CUSTOMER:
+            query = "SELECT * FROM user u JOIN customer c ON u.userId = c.customerId WHERE userId LIKE ?";
+            break;
+        case STAFF:
+            query = "SELECT * FROM user u JOIN staff s ON u.userId = s.staffId WHERE userId LIKE ?";
+            break;
+        case PRODUCT:
+            query = "SELECT * FROM product p WHERE p.productId LIKE ?";
+            break;
+    }
+
+    Connection connection = MySQLConnection.getConnection();
+    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        preparedStatement.setString(1, id);
+        ResultSet result = preparedStatement.executeQuery();
+        if (result.next()) {
+            if (id.charAt(0) == PRODUCT) {
+                addLabelAndField(info, "Name", result.getString("name"), gridBag, 0);
+                addLabelAndField(info, "Price", String.valueOf(result.getFloat("price")), gridBag, 1);
+                addLabelAndField(info, "Stock", String.valueOf(result.getInt("stock")), gridBag, 2);
+                addLabelAndField(info, "CategoryId", result.getString("categoryId"), gridBag, 3);
+                
+                JTextArea descriptionArea = new JTextArea(result.getString("description"), 5, 20);
+                descriptionArea.setLineWrap(true);
+                descriptionArea.setWrapStyleWord(true);
+                JScrollPane scrollPane = new JScrollPane(descriptionArea);
+                gridBag.gridx = 0;
+                gridBag.gridy = 4;
+                info.add(new JLabel("Description"), gridBag);
+                gridBag.gridx = 1;
+                info.add(scrollPane, gridBag);
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
+    } finally {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    footPanel.add(cancel);
+    footPanel.add(update);
+    footPanel.setBackground(linkWater);
+
+    panel.add(new JScrollPane(info, 
+        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
+        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), 
+        BorderLayout.CENTER);
+    panel.add(footPanel, BorderLayout.SOUTH);
+
+    return panel;
+  }
+
+  private void addLabelAndField(JPanel panel, String labelText, String fieldText, GridBagConstraints gbc, int gridY) {
+      JLabel label = new JLabel(labelText);
+      JTextField textField = Style.textField(fieldText);
+      gbc.gridx = 0;
+      gbc.gridy = gridY;
+      panel.add(label, gbc);
+      gbc.gridx = 1;
+      panel.add(textField, gbc);
+  }
+
+  private void pageSwitch(String id) {
+    if (this.getComponent(0) == wholePanel) {
+      this.remove(wholePanel);
+      this.add(editPanel(id));
+    } else {
+      this.remove(0);
+      this.add(wholePanel);
+    }
+    this.revalidate();
+    this.repaint();
   }
 
   private void refreshMain() {
@@ -385,6 +488,8 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
           refreshMain();
           break;
       }
+    } else if (e.getSource() == cancel) {
+      pageSwitch("");
     }
   }
 
@@ -454,6 +559,14 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       style.setOpaque(false);
 
       return style;
+    }
+
+    private static JPanel textLabel (String label, JTextField text) {
+      JPanel panel = new JPanel(new BorderLayout());
+      panel.add(new Label(label), BorderLayout.WEST);
+      panel.add(text, BorderLayout.CENTER);
+
+      return panel;
     }
   }
 }
