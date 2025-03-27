@@ -145,11 +145,13 @@ public class CategoryProductGUI extends JFrame {
                 if (!e.getValueIsAdjusting()) {
                     String selectedProduct = productList.getSelectedValue();
                     if (selectedProduct != null) {
+                        selectedQuantity = 1; // Reset quantity when selecting a new product
                         displayProductDetails(selectedProduct);
                     }
                 }
             }
         });
+        
 
         refreshButton.addActionListener(e -> loadCategories());
 
