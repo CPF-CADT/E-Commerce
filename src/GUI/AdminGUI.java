@@ -3,11 +3,8 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -60,6 +57,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   private final char DEFAULT = ' ', ASCENDING = 'A', DESCENDING = 'D';
   private char currentView = CUSTOMER, currentSort = DEFAULT;
   private String currentSearch = null;
+  private String currentEdit = null;
   private LinkedList<String> deleteList = new LinkedList<>();
   private static Color linkWater = new Color(237, 242, 250);
 
@@ -73,6 +71,25 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
   JCheckBox check;
   JTextField search;
   JScrollPane dataScrollPane;
+
+  JTextField name;
+  JTextField price;
+  JTextField stock;
+  JTextField category;
+  JTextArea description;
+
+  JTextField firstname;
+  JTextField lastname;
+  JTextField email;
+  JTextField password;
+  JTextField position;
+  JTextField street;
+  JTextField city;
+  JTextField state;
+  JTextField postalCode;
+  JTextField country;
+  JTextField phoneNumber;
+  JTextField dateOfBirth;
 
   JButton deleteSelect; 
   JButton cancel; 
@@ -324,11 +341,9 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
 
   private JPanel editPanel(String id) {
     JPanel panel = new JPanel(new BorderLayout(10, 10));
-    JPanel info = new JPanel(new GridBagLayout());
+    JPanel info = new JPanel(new BorderLayout(10, 10));
     JPanel footPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-    GridBagConstraints gridBag = new GridBagConstraints();
-    gridBag.insets = new Insets(5, 5, 5, 5);
-    String query = "";
+    String query = new String();
 
     cancel = Style.button("Cancel");
     cancel.addActionListener(this);
@@ -352,22 +367,44 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
         preparedStatement.setString(1, id);
         ResultSet result = preparedStatement.executeQuery();
         if (result.next()) {
-            if (id.charAt(0) == PRODUCT) {
-                addLabelAndField(info, "Name", result.getString("name"), gridBag, 0);
-                addLabelAndField(info, "Price", String.valueOf(result.getFloat("price")), gridBag, 1);
-                addLabelAndField(info, "Stock", String.valueOf(result.getInt("stock")), gridBag, 2);
-                addLabelAndField(info, "CategoryId", result.getString("categoryId"), gridBag, 3);
-                
-                JTextArea descriptionArea = new JTextArea(result.getString("description"), 5, 20);
-                descriptionArea.setLineWrap(true);
-                descriptionArea.setWrapStyleWord(true);
-                JScrollPane scrollPane = new JScrollPane(descriptionArea);
-                gridBag.gridx = 0;
-                gridBag.gridy = 4;
-                info.add(new JLabel("Description"), gridBag);
-                gridBag.gridx = 1;
-                info.add(scrollPane, gridBag);
+          JPanel labelPanel = new JPanel(new GridLayout(0, 1, 0, 10));
+          JPanel fieldPanel = new JPanel(new GridLayout(0, 1, 0, 10));
+
+          if (id.charAt(0) == PRODUCT) {
+            addLabelAndField(labelPanel, fieldPanel, "Name", name, result.getString("name"));
+            addLabelAndField(labelPanel, fieldPanel, "Price", price, String.valueOf(result.getFloat("price")));
+            addLabelAndField(labelPanel, fieldPanel, "Stock", stock, String.valueOf(result.getInt("stock")));
+            addLabelAndField(labelPanel, fieldPanel, "CategoryId", category, result.getString("categoryId"));
+            
+            description = new JTextArea(result.getString("description"), 5, 20);
+            description.setLineWrap(true);
+            description.setWrapStyleWord(true);
+            JScrollPane scrollPane = new JScrollPane(description, 
+              ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, 
+              ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            
+            labelPanel.add(new JLabel("Description", JLabel.TRAILING));
+            fieldPanel.add(scrollPane);
+
+          } else if (id.charAt(0) == CUSTOMER || id.charAt(0) == STAFF) {
+            addLabelAndField(labelPanel, fieldPanel, "Firstname", firstname, result.getString("firstname"));
+            addLabelAndField(labelPanel, fieldPanel, "Lastname", lastname, result.getString("lastname"));
+            addLabelAndField(labelPanel, fieldPanel, "Email", email, result.getString("email"));
+            addLabelAndField(labelPanel, fieldPanel, "Password", password, result.getString("password"));
+            if (id.charAt(0) == STAFF) {
+              addLabelAndField(labelPanel, fieldPanel, "Position", position, result.getString("position"));
             }
+            addLabelAndField(labelPanel, fieldPanel, "Street", street, result.getString("street"));
+            addLabelAndField(labelPanel, fieldPanel, "City", city, result.getString("city"));
+            addLabelAndField(labelPanel, fieldPanel, "State", state, result.getString("state"));
+            addLabelAndField(labelPanel, fieldPanel, "Postal Code", postalCode, result.getString("postalCode"));
+            addLabelAndField(labelPanel, fieldPanel, "Country", country, result.getString("country"));
+            addLabelAndField(labelPanel, fieldPanel, "Phone Number", phoneNumber, result.getString("phoneNumber"));
+            addLabelAndField(labelPanel, fieldPanel, "Date of Birth", dateOfBirth, String.valueOf(result.getDate("dateOfBirth")));
+          }
+
+          info.add(labelPanel, BorderLayout.WEST);
+          info.add(fieldPanel, BorderLayout.CENTER);
         }
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
@@ -378,6 +415,7 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
             e.printStackTrace();
         }
     }
+    currentEdit = id;
 
     footPanel.add(cancel);
     footPanel.add(update);
@@ -392,14 +430,11 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
     return panel;
   }
 
-  private void addLabelAndField(JPanel panel, String labelText, String fieldText, GridBagConstraints gbc, int gridY) {
-      JLabel label = new JLabel(labelText);
-      JTextField textField = Style.textField(fieldText);
-      gbc.gridx = 0;
-      gbc.gridy = gridY;
-      panel.add(label, gbc);
-      gbc.gridx = 1;
-      panel.add(textField, gbc);
+  private void addLabelAndField(JPanel sidePanel, JPanel centerPanel, String labelText, JTextField textField, String fieldText) {
+      JLabel label = new JLabel(labelText, JLabel.TRAILING);
+      textField = Style.textField(fieldText);
+      sidePanel.add(label);
+      centerPanel.add(textField);
   }
 
   private void pageSwitch(String id) {
@@ -490,6 +525,59 @@ public class AdminGUI extends JPanel implements ActionListener, KeyListener {
       }
     } else if (e.getSource() == cancel) {
       pageSwitch("");
+    } else if (e.getSource() == update && currentEdit != null) {
+      String query = new String();
+
+      switch (currentEdit.charAt(0)) {
+        case CUSTOMER:
+          query = "UPDATE user SET firstname = ?, lastname = ?, email = ?, password = ?, street = ?, city = ?, state = ?, postalCode = ?, country = ?, phoneNumber = ?, dateOfBirth = ? WHERE userId = ?";
+          break;
+        case STAFF:
+          query = "UPDATE user JOIN staff ON userId = staffId SET firstname = ?, lastname = ?, email = ?, password = ?, street = ?, city = ?, state = ?, postalCode = ?, country = ?, phoneNumber = ?, dateOfBirth = ?, position = ? WHERE userId = ?";
+          break;
+        case PRODUCT:
+          query = "UPDATE product SET name = ?, price = ?, stock = ?, category = ?, description = ? WHERE productId = ?";
+          break;
+      }
+      Connection connection = MySQLConnection.getConnection();
+      try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        if (currentEdit.charAt(0) == PRODUCT) {
+          preparedStatement.setString(1,  name.getText().trim());
+          preparedStatement.setFloat(2, Float.valueOf(price.getText().trim()));
+          preparedStatement.setInt(3, Integer.valueOf(stock.getText().trim()));
+          preparedStatement.setString(4, category.getText().trim());
+          preparedStatement.setString(5, description.getText().trim());
+          preparedStatement.setString(6, currentEdit);
+        } else if (currentEdit.charAt(0) == CUSTOMER || currentEdit.charAt(0) == STAFF) {
+          preparedStatement.setString(1, firstname.getText().trim());
+          preparedStatement.setString(2, lastname.getText().trim());
+          preparedStatement.setString(3, email.getText().trim());
+          preparedStatement.setString(4, password.getText().trim());
+          preparedStatement.setString(5, street.getText().trim());
+          preparedStatement.setString(6, city.getText().trim());
+          preparedStatement.setString(7, state.getText().trim());
+          preparedStatement.setString(8, postalCode.getText().trim());
+          preparedStatement.setString(9, country.getText().trim());
+          preparedStatement.setString(10, phoneNumber.getText().trim());
+          preparedStatement.setString(11, dateOfBirth.getText().trim());
+          if (currentEdit.charAt(0) == STAFF) {
+            preparedStatement.setString(12, position.getText().trim());
+            preparedStatement.setString(13, currentEdit);
+          } else {
+            preparedStatement.setString(12, currentEdit);
+          }
+        }
+
+        preparedStatement.executeUpdate();
+      } catch (SQLException except) {
+        JOptionPane.showMessageDialog(null, "Please try again later!", "Connection failed", JOptionPane.WARNING_MESSAGE);
+      } finally {
+        try {
+          connection.close();
+        } catch (SQLException except) {
+          except.printStackTrace();
+        }
+      }
     }
   }
 
